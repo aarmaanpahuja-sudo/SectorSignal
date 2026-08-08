@@ -126,7 +126,7 @@ export function useWatchTowerData(userId: string | null) {
 
       if (error) throw error;
 
-      // Add the new incident and remove any duplicate
+            
       setIncidents((prev) => {
         const filtered = prev.filter((i) => i.id !== insertedIncident.id);
         return [insertedIncident as Incident, ...filtered];
@@ -135,6 +135,28 @@ export function useWatchTowerData(userId: string | null) {
       // Update karma
       await supabase.rpc("bump_karma", { p_client: clientId, p_user: userId ?? null });
       setProfile((prev) => (prev ? { ...prev, karma: prev.karma + 10 } : prev));
+
+      
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-incident-push`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            },
+            body: JSON.stringify({
+              zip_code: input.zip_code,
+              title: input.title,
+              category: input.category,
+            }),
+          }
+        );
+      } catch (e) {
+        console.log("Push notification failed (non-blocking):", e);
+      }
 
       return insertedIncident as Incident;
     },
