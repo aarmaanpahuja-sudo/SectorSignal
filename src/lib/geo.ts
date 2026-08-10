@@ -59,11 +59,34 @@ export async function getZipCenter(zip: string): Promise<[number, number]> {
       zipCache[cleaned] = coords;
       return coords;
     }
-  } catch {
+    } catch {
     // network error — fall through
   }
 
   return [39.5, -98.35];
+}
+
+export async function reverseGeocodeZip(
+  lat: number,
+  lng: number
+): Promise<string | null> {
+  try {
+    const url =
+      `https://api.bigdatacloud.net/data/reverse-geocode-client` +
+      `?latitude=${lat}&longitude=${lng}&localityLanguage=en`;
+
+    const res = await fetch(url);
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const postcode = (data?.postcode || data?.postalCode || "").toString().trim();
+
+    // US zips are 5 digits (ignore ZIP+4 extras)
+    const match = postcode.match(/\d{5}/);
+    return match ? match[0] : null;
+  } catch {
+    return null;
+  }
 }
 export function jitterAround(zip: string, seed?: string): [number, number] {
   const [lat, lng] = zipCenter(zip);
