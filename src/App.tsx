@@ -416,13 +416,6 @@ Through this project, we hope to show how technology can bring people together a
     </div>
   </div>
 
----
-
-### 2. Full updated Privacy Policy JSX
-
-Replace your entire privacy view block with this:
-
-```tsx
 ) : view === "privacy" ? (
   // ==================== PRIVACY POLICY ====================
   <div className="mx-auto max-w-3xl p-6 space-y-8 text-slate-300">
