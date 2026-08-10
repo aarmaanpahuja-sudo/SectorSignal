@@ -12,7 +12,7 @@ export function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString();
 }
 
-// Approximate center lat/lng for a US zip code. Falls back to a US midpoint.
+// Approximate center lat/lng for a few common zips (fast path)
 const ZIP_CENTERS: Record<string, [number, number]> = {
   "90210": [34.0901, -118.4065],
   "10001": [40.7484, -73.9967],
@@ -24,10 +24,47 @@ const ZIP_CENTERS: Record<string, [number, number]> = {
   "30301": [33.749, -84.388],
 };
 
+// Runtime cache so we don't re-fetch the same zip
+const zipCache: Record<string, [number, number]> = { ...ZIP_CENTERS };
+
+/** Sync fallback — still used by jitterAround */
 export function zipCenter(zip: string): [number, number] {
-  return ZIP_CENTERS[zip] || [39.5, -98.35];
+  return zipCache[zip] || ZIP_CENTERS[zip] || [39.5, -98.35];
 }
 
+/** Async: real center for any US zip via free Zippopotam API */
+export async function getZipCenter(zip: string): Promise<[number, number]> {
+  const cleaned = (zip || "").trim();
+
+  if (zipCache[cleaned]) {
+    return zipCache[cleaned];
+  }
+
+  if (!/^\d{5}$/.test(cleaned)) {
+    return [39.5, -98.35];
+  }
+
+  try {
+    const res = await fetch(`https://api.zippopotam.us/us/${cleaned}`);
+    if (!res.ok) {
+      return [39.5, -98.35];
+    }
+    const data = await res.json();
+    const place = data?.places?.[0];
+    if (place?.latitude && place?.longitude) {
+      const coords: [number, number] = [
+        parseFloat(place.latitude),
+        parseFloat(place.longitude),
+      ];
+      zipCache[cleaned] = coords;
+      return coords;
+    }
+  } catch {
+    // network error — fall through
+  }
+
+  return [39.5, -98.35];
+}
 export function jitterAround(zip: string, seed?: string): [number, number] {
   const [lat, lng] = zipCenter(zip);
   // Deterministic small offset so the same incident always lands in the same
