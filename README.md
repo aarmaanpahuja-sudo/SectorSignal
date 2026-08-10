@@ -8,14 +8,18 @@ Website: https://vexgrid.vercel.app
 
 - **Live incident feed** — Browse active, resolved, or all alerts filtered by your watch zones
 - **Interactive live map** — Real-time map of active incidents with category-colored pins, coordinates on click, and one-tap resolve
-- **File a report** — Two-steps: pick a category, add details, capture GPS location (optional), and post to your zip code community
+- **File a report** — Two steps: pick a category, add details, capture GPS (zip is auto-filled from location when available), and post to your community
 - **Watch zones** — Monitor any US zip code. Filter the feed and map to only show what matters to you
+- **Zip-aware map** — Selecting a watch-zone zip recenters the map on that community using real zip centers
+- **Smart location** — Capture GPS when filing a report; zip code is auto-detected from your coordinates (you can still edit it)
 - **Neighbor karma** — Earn +10 karma for every report you file. Your score is saved with your account
 - **Community verification** — Neighbors can verify reports and mark them as resolved
 - **Comments & updates** — Threaded updates on each incident to coordinate with neighbors
 - **Analytics dashboard** — Breakdown of reports by category and zip code
 - **Real-time sync** — New reports, comments, and status changes appear instantly across all devices via Supabase Realtime
 - **Optional accounts** — Use the app anonymously (browser-based) or sign up with email/password to save your profile across devices
+- **Installable PWA** — Add VexGrid to your phone home screen for a full-screen, app-like experience (no App Store required)
+- **Push notifications** — Optional alerts when a new incident is filed in a zip code you watch (enable on the Install page)
 
 ## Incident Categories
 
@@ -32,9 +36,12 @@ Website: https://vexgrid.vercel.app
 
 - **Frontend:** React + TypeScript + Vite
 - **Styling:** Tailwind CSS
-- **Maps:** Leaflet Open Street Map (OSM) Data
-- **Backend:** Supabase (Postgres + Realtime + Auth)
+- **Maps:** Leaflet + OpenStreetMap (OSM) data
+- **Backend:** Supabase (Postgres + Realtime + Auth + Edge Functions)
 - **Icons:** Lucide React
+- **PWA:** Web App Manifest + Service Worker (installable, push-capable)
+- **Push:** Web Push (VAPID) via Supabase Edge Function
+- **Geocoding:** Zippopotam.us (zip → coordinates) + BigDataCloud (coordinates → zip)
 
 ## Getting Started
 
@@ -45,30 +52,34 @@ Website: https://vexgrid.vercel.app
 
 ### Install
 
-```bash
-npm install
-```
+    npm install
 
 ### Configure
 
 Create a `.env` file with your Supabase credentials:
 
-```
-VITE_SUPABASE_URL=your-project-url
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
+    VITE_SUPABASE_URL=your-project-url
+    VITE_SUPABASE_ANON_KEY=your-anon-key
 
 ### Run the dev server
 
-```bash
-npm run dev
-```
+    npm run dev
 
 ### Build for production
 
-```bash
-npm run build
-```
+    npm run build
+
+## Progressive Web App & Notifications
+
+VexGrid can be installed to a phone home screen from the **Install** page in the app.
+
+Optional push notifications:
+
+1. Open the **Install** page
+2. Tap **Enable Notifications** and allow permission
+3. When a new incident is filed in a zip you watch, subscribed devices receive a push
+
+Push delivery uses a Supabase Edge Function (`send-incident-push`) and browser/OS push services. Notifications are optional and limited to your watch zones.
 
 ## Database
 
@@ -85,26 +96,29 @@ Both paths coexist via dual-path Row Level Security policies that check either `
 - `comments` — Threaded updates on incidents
 - `watch_zones` — Zip codes a user monitors
 - `profiles` — Display name and karma score
+- `push_subscriptions` — Browser push endpoints for optional incident alerts (tied to `client_id` / `user_id`)
 
 ## Project Structure
 
-```
-src/
-├── components/
-│   ├── AuthModal.tsx        # Sign in / sign up modal
-│   ├── IncidentCard.tsx     # Feed card with comments + inline mini-map
-│   ├── MapView.tsx          # Full-screen live incident map
-│   ├── MiniMap.tsx          # Inline map for incident detail
-│   ├── ReportModal.tsx      # Two-step report filing flow
-│   └── ...
-├── lib/
-│   ├── categories.ts        # Category metadata (icons, colors, labels)
-│   ├── clientId.ts          # Anonymous browser identity
-│   ├── geo.ts               # Zip code geocoding + map utilities
-│   ├── supabase.ts          # Client + types
-│   ├── useAuth.ts           # Auth hook (sign in/up/out, session)
-│   └── useWatchTowerData.ts # Data hook (incidents, comments, zones, profile; WatchTower was the old name)
-└── App.tsx                  # Main app shell with nav + views
-```
+    public/
+    ├── manifest.webmanifest     # PWA install metadata
+    ├── sw.js                    # Service worker (push + notification click)
+    └── icons/                   # App icons (192, 512, apple-touch)
 
-
+    src/
+    ├── components/
+    │   ├── AuthModal.tsx        # Sign in / sign up modal
+    │   ├── IncidentCard.tsx     # Feed card with comments + inline mini-map
+    │   ├── InstallPage.tsx      # Install to home screen + enable notifications
+    │   ├── MapView.tsx          # Full live incident map (zip recenter + pins)
+    │   ├── MiniMap.tsx          # Inline map for incident detail / report form
+    │   ├── ReportModal.tsx      # Report flow with GPS + reverse-geocoded zip
+    │   └── ...
+    ├── lib/
+    │   ├── categories.ts        # Category metadata (icons, colors, labels)
+    │   ├── clientId.ts          # Anonymous browser identity
+    │   ├── geo.ts               # Zip centers, forward/reverse geocoding, time helpers
+    │   ├── supabase.ts          # Client + types
+    │   ├── useAuth.ts           # Auth hook (sign in/up/out, session)
+    │   └── useWatchTowerData.ts # Incidents, zones, comments, profile; triggers push on new reports
+    └── App.tsx                  # Main app shell with nav + views
