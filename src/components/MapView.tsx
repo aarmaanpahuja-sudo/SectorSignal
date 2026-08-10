@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as L from "leaflet";
 import { CATEGORIES } from "../lib/categories";
 import type { Incident } from "../lib/supabase";
-import { zipCenter } from "../lib/geo";
+import { getZipCenter } from "../lib/geo";
 
 interface Props {
   incidents: Incident[];
@@ -58,22 +58,42 @@ export default function MapView({ incidents, activeZip, onResolve, selectedIncid
     };
   }, []);
 
-  // Recenter when active zip changes
+    // Recenter when active zip or filtered incidents change
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    if (activeZip) {
-      map.flyTo(zipCenter(activeZip), 12, { duration: 0.8 });
-    } else if (filtered.length > 0) {
-      const bounds = L.latLngBounds(
-        filtered
-          .filter((i) => i.latitude != null && i.longitude != null)
-          .map((i) => [i.latitude!, i.longitude!]) as [number, number][]
+    let cancelled = false;
+
+    (async () => {
+      const withCoords = filtered.filter(
+        (i) => i.latitude != null && i.longitude != null
       );
-      if (bounds.isValid()) map.fitBounds(bounds, { padding: [60, 60] });
-    }
-  }, [activeZip]);
+
+      // 1) Prefer real incident pins in this zip
+      if (withCoords.length > 0) {
+        const bounds = L.latLngBounds(
+          withCoords.map((i) => [i.latitude!, i.longitude!] as [number, number])
+        );
+        if (bounds.isValid()) {
+          map.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
+          return;
+        }
+      }
+
+      // 2) No pins — fly to the real center of that zip
+      if (activeZip) {
+        const center = await getZipCenter(activeZip);
+        if (!cancelled) {
+          map.flyTo(center, 12, { duration: 0.8 });
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeZip, filtered]);
 
 
   useEffect(() => {
