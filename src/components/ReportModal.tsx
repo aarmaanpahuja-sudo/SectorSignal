@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { X, MapPin, Loader2, Check, Navigation } from "lucide-react";
 import { CATEGORY_LIST } from "../lib/categories";
 import type { IncidentCategory } from "../lib/supabase";
-import { jitterAround } from "../lib/geo";
+import { jitterAround, reverseGeocodeZip } from "../lib/geo";
 import MiniMap from "./MiniMap";
 
 interface Props {
@@ -63,16 +63,24 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
     onClose();
   };
 
-  const requestGeo = () => {
+    const requestGeo = () => {
     setGeoStatus("loading");
     if (!navigator.geolocation) {
       setGeoStatus("denied");
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setCoords([pos.coords.latitude, pos.coords.longitude]);
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setCoords([lat, lng]);
         setGeoStatus("ok");
+
+        const detectedZip = await reverseGeocodeZip(lat, lng);
+        if (detectedZip) {
+          setZip(detectedZip);
+          setErr(null);
+        }
       },
       () => {
         setGeoStatus("denied");
@@ -270,12 +278,18 @@ location_description: "",
       Pin set to {coords[0].toFixed(4)}, {coords[1].toFixed(4)}
     </p>
 
-    <MiniMap
+        <MiniMap
       lat={coords[0]}
       lng={coords[1]}
       color="#22c55e"
       draggable
-      onMove={(lat, lng) => setCoords([lat, lng])}
+      onMove={async (lat, lng) => {
+        setCoords([lat, lng]);
+        const detectedZip = await reverseGeocodeZip(lat, lng);
+        if (detectedZip) {
+          setZip(detectedZip);
+        }
+      }}
     />
   </>
 )}
