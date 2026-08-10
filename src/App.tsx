@@ -415,12 +415,20 @@ Through this project, we hope to show how technology can bring people together a
       </p>
     </div>
   </div>
+
+---
+
+### 2. Full updated Privacy Policy JSX
+
+Replace your entire privacy view block with this:
+
+```tsx
 ) : view === "privacy" ? (
   // ==================== PRIVACY POLICY ====================
   <div className="mx-auto max-w-3xl p-6 space-y-8 text-slate-300">
     <div>
       <h1 className="text-3xl font-bold text-white mb-2">Privacy Policy</h1>
-      <p className="text-slate-400 text-sm">Last Updated: August 7, 2026</p>
+      <p className="text-slate-400 text-sm">Last Updated: August 10, 2026</p>
     </div>
 
     <section className="space-y-3">
@@ -435,7 +443,7 @@ Through this project, we hope to show how technology can bring people together a
 
     <section className="space-y-3">
       <h2 className="text-xl font-semibold text-white">2. Information We Collect</h2>
-      
+
       <h3 className="text-lg font-medium text-white mt-4">A. Information You Provide Directly</h3>
       <ul className="list-disc list-inside space-y-1 ml-2">
         <li><strong>Incident reports</strong>: Category, title, description, zip code, optional location description, and status updates.</li>
@@ -448,7 +456,7 @@ Through this project, we hope to show how technology can bring people together a
       <h3 className="text-lg font-medium text-white mt-4">B. Automatically Collected / Device Information</h3>
       <ul className="list-disc list-inside space-y-1 ml-2">
         <li><strong>Anonymous client identifier</strong>: A randomly generated UUID (<code>client_id</code>) created in your browser and stored in localStorage. This identifies your activity in anonymous mode and is sent with requests so the system can associate your private data (watch zones, profile) with you.</li>
-        <li><strong>Location data</strong>: When you file a report, the app requests your device’s geolocation (via the browser Geolocation API). If granted, precise latitude and longitude are captured and stored with the incident. If geolocation is unavailable or denied, the app may fall back to an approximate location derived from the zip code.</li>
+        <li><strong>Location data</strong>: When you file a report, the app may request your device’s geolocation (via the browser Geolocation API). If granted, latitude and longitude are stored with the incident and may be used to automatically suggest the local zip code (reverse geocoding). You can still edit the zip. If geolocation is denied, you can enter a zip manually; approximate map position may be derived from that zip.</li>
         <li><strong>Technical data</strong>: Standard request metadata handled by our backend provider (IP address, user agent, timestamps) as part of normal web service operation. We do not operate our own analytics or tracking scripts in the application code.</li>
       </ul>
 
@@ -456,6 +464,13 @@ Through this project, we hope to show how technology can bring people together a
       <p>
         When you sign up or sign in with email/password, authentication is handled by Supabase Auth. We store a reference to your authenticated user ID and link it to your profile, watch zones, reports, comments, and verifications so your data can follow you across devices.
       </p>
+
+      <h3 className="text-lg font-medium text-white mt-4">D. Push notification data</h3>
+      <ul className="list-disc list-inside space-y-1 ml-2">
+        <li>If you enable notifications, we store a push subscription for your device (endpoint URL and encryption keys provided by your browser/OS).</li>
+        <li>That subscription is linked to your anonymous <code>client_id</code> and, if you are signed in, your account <code>user_id</code>.</li>
+        <li>We use this only to send optional alerts about new incidents in zip codes you monitor (watch zones).</li>
+      </ul>
     </section>
 
     <section className="space-y-3">
@@ -467,6 +482,9 @@ Through this project, we hope to show how technology can bring people together a
         <li>Associate ownership of private data (profiles and watch zones) and allow deletion of your own content.</li>
         <li>Calculate and display neighbor karma.</li>
         <li>Support optional account features so you can access the same profile and zones from different browsers/devices.</li>
+        <li>Suggest a zip code from your GPS location when you file a report (you may change it).</li>
+        <li>Send optional push notifications about new incidents in your watch zones, when you have enabled notifications.</li>
+        <li>Support installing the app on your home screen as a Progressive Web App.</li>
         <li>Improve reliability and security of the service.</li>
       </ul>
       <p className="mt-2">
@@ -484,23 +502,25 @@ Through this project, we hope to show how technology can bring people together a
         <li>Watch zones and full profile details are intended to remain private to you and are protected by row-level security policies.</li>
       </ul>
       <p className="mt-2">
-        Because location data on public reports is visible, please avoid including highly sensitive personal details in titles or descriptions.
+        Push alerts are private to your device; the underlying incident remains public on the feed and map as described above. Because location data on public reports is visible, please avoid including highly sensitive personal details in titles or descriptions.
       </p>
     </section>
 
     <section className="space-y-3">
       <h2 className="text-xl font-semibold text-white">5. Location Data</h2>
       <p>
-        Location is requested only when you choose to file a report and is used solely to place the incident on the map for the community. You can deny the browser permission; the app will then use an approximate zip-code-based position. Location data associated with a report becomes part of the public incident record.
+        Location is requested when you choose to capture it while filing a report. It is used to place the incident on the map and, when possible, to detect the local zip code so you do not have to type it. You can deny the browser permission and enter a zip manually. Location data attached to a report becomes part of the public incident record on the feed and map.
       </p>
     </section>
 
     <section className="space-y-3">
       <h2 className="text-xl font-semibold text-white">6. Third-Party Services</h2>
       <ul className="list-disc list-inside space-y-1 ml-2">
-        <li><strong>Supabase</strong> (database, authentication, realtime, storage of all application data). Your data is processed according to Supabase’s terms and privacy practices.</li>
+        <li><strong>Supabase</strong> (database, authentication, realtime, Edge Functions, storage of all application data). Your data is processed according to Supabase’s terms and privacy practices.</li>
         <li><strong>Leaflet + OpenStreetMap</strong> for map rendering. Map tile requests go to OpenStreetMap infrastructure.</li>
         <li><strong>Hosting</strong>: The frontend is deployed on Vercel.</li>
+        <li><strong>Browser / OS push services</strong> (e.g. services used by Chrome and by Apple for Home Screen web apps). When a notification is sent, delivery is handled by those platforms. We send only the alert content and a link back to the app.</li>
+        <li><strong>Geocoding providers</strong> used to turn zip codes into map centers and coordinates into zip codes (e.g. Zippopotam.us, BigDataCloud). These requests use location or zip only for that lookup.</li>
       </ul>
       <p className="mt-2">
         We do not integrate advertising networks, analytics SDKs, or social login providers beyond the email/password flow handled by Supabase.
@@ -522,8 +542,11 @@ Through this project, we hope to show how technology can bring people together a
       <ul className="list-disc list-inside space-y-1 ml-2">
         <li>Use the app anonymously (browser <code>client_id</code> only) or create an optional account.</li>
         <li>Grant or deny geolocation permission in your browser.</li>
+        <li>Edit an auto-filled zip code before posting a report.</li>
         <li>Edit your display name.</li>
         <li>Add or remove watch zones.</li>
+        <li>Enable or disable push notifications in the app (Install page) and in your device/browser settings.</li>
+        <li>Install or remove the app from your home screen at any time.</li>
         <li>Delete your own reports and comments.</li>
         <li>Sign out or stop using the service at any time.</li>
         <li>Clear localStorage to reset your anonymous client ID.</li>
