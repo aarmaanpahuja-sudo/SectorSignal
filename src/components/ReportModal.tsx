@@ -278,18 +278,12 @@ location_description: "",
       Pin set to {coords[0].toFixed(4)}, {coords[1].toFixed(4)}
     </p>
 
-        <MiniMap
+            <MiniMap
       lat={coords[0]}
       lng={coords[1]}
       color="#22c55e"
       draggable
-      onMove={async (lat, lng) => {
-        setCoords([lat, lng]);
-        const detectedZip = await reverseGeocodeZip(lat, lng);
-        if (detectedZip) {
-          setZip(detectedZip);
-        }
-      }}
+      onMove={(lat, lng) => setCoords([lat, lng])}
     />
   </>
 )}
