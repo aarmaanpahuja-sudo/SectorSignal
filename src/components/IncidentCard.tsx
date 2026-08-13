@@ -104,35 +104,35 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
           </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-2 border-t border-slate-800 pt-3.5">
+                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-800 pt-3.5">
           <button
             onClick={handleVerify}
             disabled={verifying || resolved}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all duration-200 hover:border-sky-600/50 hover:bg-sky-500/10 hover:text-sky-300 disabled:opacity-40"
+            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all duration-200 hover:border-sky-600/50 hover:bg-sky-500/10 hover:text-sky-300 disabled:opacity-40"
           >
             <ThumbsUp size={13} />
             Verify ({incident.verifications})
           </button>
           <button
             onClick={() => setShowComments((s) => !s)}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all duration-200 hover:border-slate-600 hover:bg-slate-800 disabled:opacity-40"
+            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all duration-200 hover:border-slate-600 hover:bg-slate-800 disabled:opacity-40"
           >
             <MessageSquare size={13} />
             Comments ({incidentComments.length})
           </button>
           {hasCoords && (
             <button
-  onClick={() => onOpenMap(incident)}
-  className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all duration-200 hover:border-slate-600 hover:bg-slate-800 disabled:opacity-40"
->
-  <Maximize2 size={13} />
-  Enlarge
-</button>
+              onClick={() => onOpenMap(incident)}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all duration-200 hover:border-slate-600 hover:bg-slate-800 disabled:opacity-40"
+            >
+              <Maximize2 size={13} />
+              Enlarge
+            </button>
           )}
           {!resolved && (
             <button
               onClick={() => onResolve(incident.id)}
-              className="ml-auto flex items-center gap-1.5 rounded-lg border border-emerald-600/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300 transition-all duration-200 hover:bg-emerald-500/20"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-emerald-600/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300 transition-all duration-200 hover:bg-emerald-500/20"
             >
               <Check size={13} />
               Resolve
