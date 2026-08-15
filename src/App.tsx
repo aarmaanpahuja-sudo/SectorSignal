@@ -434,7 +434,7 @@ Through this project, we hope to show how technology can bring people together a
   <div className="mx-auto max-w-3xl p-6 space-y-8 text-slate-300">
     <div>
       <h1 className="text-3xl font-bold text-white mb-2">Privacy Policy</h1>
-      <p className="text-slate-400 text-sm">Last Updated: August 10, 2026</p>
+      <p className="text-slate-400 text-sm">Last Updated: August 15, 2026</p>
     </div>
 
     <section className="space-y-3">
@@ -586,7 +586,7 @@ Through this project, we hope to show how technology can bring people together a
     <section className="space-y-3">
       <h2 className="text-xl font-semibold text-white">12. Contact Us</h2>
       <p>
-        For privacy-related questions, data requests, or concerns, please contact the operators of VexGrid via the contact methods listed on https://vexgrid.vercel.app or the project repository associated with the application.
+        For privacy-related questions, data requests, or concerns, please contact the operators of VexGrid via vexgrid866@gmail.com or the project repository associated with the application.
       </p>
     </section>
   </div>
