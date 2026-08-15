@@ -60,7 +60,7 @@ export default function Footer() {
 
         {/* DESKTOP ONLY TAGLINE */}
         <p className="mt-2 hidden text-center text-xs sm:block">
-          "Connecting Communities. Protecting Neighbors." Contact: vexgrid866@gmail.com
+          "Connecting Communities. Protecting Neighbors."
         </p>
 
       </div>
