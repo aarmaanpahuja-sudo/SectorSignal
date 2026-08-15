@@ -414,6 +414,19 @@ However, technology alone cannot create a safer community. VexGrid is designed t
 Through this project, we hope to show how technology can bring people together and create stronger, more connected neighborhoods.
       </p>
     </div>
+    <div>
+      <h2 className="text-xl font-semibold text-white mb-2">Our Mission</h2>
+      <p className="text-slate-300">
+        We believe that safer neighborhoods start with better information.
+        By sharing what we see, we can all look out for each other.
+      </p>
+    </div>
+    <div>
+      <h2 className="text-xl font-semibold text-white mb-2">Contact</h2>
+      <p className="text-slate-300">
+        vexgrid866@gmail.com
+      </p>
+    </div>
   </div>
 
 ) : view === "privacy" ? (
