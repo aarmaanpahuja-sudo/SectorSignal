@@ -36,7 +36,7 @@ Website: https://vexgrid.vercel.app
 
 - **Frontend:** React + TypeScript + Vite
 - **Styling:** Tailwind CSS
-- **Maps:** Leaflet + OpenStreetMap (OSM) data
+- **Maps:** Leaflet + Esri World Dark Gray basemap (OpenStreetMap data still used for community/context)
 - **Backend:** Supabase (Postgres + Realtime + Auth + Edge Functions)
 - **Icons:** Lucide React
 - **PWA:** Web App Manifest + Service Worker (installable, push-capable)
