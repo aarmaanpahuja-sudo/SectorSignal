@@ -434,7 +434,7 @@ Through this project, we hope to show how technology can bring people together a
   <div className="mx-auto max-w-3xl p-6 space-y-8 text-slate-300">
     <div>
       <h1 className="text-3xl font-bold text-white mb-2">Privacy Policy</h1>
-      <p className="text-slate-400 text-sm">Last Updated: August 15, 2026</p>
+      <p className="text-slate-400 text-sm">Last Updated: August 28, 2026</p>
     </div>
 
     <section className="space-y-3">
@@ -523,7 +523,7 @@ Through this project, we hope to show how technology can bring people together a
       <h2 className="text-xl font-semibold text-white">6. Third-Party Services</h2>
       <ul className="list-disc list-inside space-y-1 ml-2">
         <li><strong>Supabase</strong> (database, authentication, realtime, Edge Functions, storage of all application data). Your data is processed according to Supabase’s terms and privacy practices.</li>
-        <li><strong>Leaflet + OpenStreetMap</strong> for map rendering. Map tile requests go to OpenStreetMap infrastructure.</li>
+        <li><strong>Leaflet + Esri</strong> for map rendering. Basemap tiles are loaded from Esri (World Dark Gray). Street/geographic context is derived from map data providers including OpenStreetMap.</li>
         <li><strong>Hosting</strong>: The frontend is deployed on Vercel.</li>
         <li><strong>Browser / OS push services</strong> (e.g. services used by Chrome and by Apple for Home Screen web apps). When a notification is sent, delivery is handled by those platforms. We send only the alert content and a link back to the app.</li>
         <li><strong>Geocoding providers</strong> used to turn zip codes into map centers and coordinates into zip codes (e.g. Zippopotam.us, BigDataCloud). These requests use location or zip only for that lookup.</li>
