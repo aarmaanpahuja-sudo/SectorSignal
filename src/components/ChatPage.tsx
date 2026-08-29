@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Send } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
@@ -25,9 +25,12 @@ export default function ChatPage({ initialUserId }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [text, setText] = useState("");
+  const [emailInput, setEmailInput] = useState("");
   const [err, setErr] = useState<string | null>(null);
+  const preferredOtherId = useRef<string | null>(initialUserId ?? null);
 
   useEffect(() => {
+    preferredOtherId.current = initialUserId ?? preferredOtherId.current;
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -35,8 +38,9 @@ export default function ChatPage({ initialUserId }: Props) {
         return;
       }
       setMe(user.id);
-      if (initialUserId && initialUserId !== user.id) {
-        await openOrCreate(user.id, initialUserId);
+      if (preferredOtherId.current && preferredOtherId.current !== user.id) {
+        const id = await openOrCreate(user.id, preferredOtherId.current);
+        if (id) setActiveId(id);
       }
       await loadConvos(user.id);
     })();
@@ -56,7 +60,7 @@ export default function ChatPage({ initialUserId }: Props) {
       .not("author_email", "is", null)
       .limit(1)
       .maybeSingle();
-    const email = inc?.author_email || userId.slice(0, 8);
+    const email = inc?.author_email || "unknown email";
     return `${email} - ${name}`;
   }
 
@@ -73,7 +77,14 @@ export default function ChatPage({ initialUserId }: Props) {
       list.push({ id: c.id, otherId, label: await labelFor(otherId) });
     }
     setConvos(list);
-    if (!activeId && list[0]) setActiveId(list[0].id);
+
+    const preferred = preferredOtherId.current;
+    const match = preferred ? list.find((c) => c.otherId === preferred) : null;
+    if (match) {
+      setActiveId(match.id);
+    } else if (!activeId && list[0]) {
+      setActiveId(list[0].id);
+    }
   }
 
   async function openOrCreate(myId: string, otherId: string) {
@@ -85,10 +96,7 @@ export default function ChatPage({ initialUserId }: Props) {
       .eq("participant_a", a)
       .eq("participant_b", b)
       .maybeSingle();
-    if (existing) {
-      setActiveId(existing.id);
-      return existing.id as string;
-    }
+    if (existing) return existing.id as string;
     const { data: created, error } = await supabase
       .from("conversations")
       .insert({ participant_a: a, participant_b: b })
@@ -98,9 +106,35 @@ export default function ChatPage({ initialUserId }: Props) {
       setErr(error.message);
       return null;
     }
-    setActiveId(created.id);
     return created.id as string;
   }
+
+  const startByEmail = async () => {
+    if (!me) return;
+    const email = emailInput.trim().toLowerCase();
+    if (!email) return;
+    const { data: inc, error } = await supabase
+      .from("incidents")
+      .select("user_id")
+      .eq("author_email", email)
+      .not("user_id", "is", null)
+      .limit(1)
+      .maybeSingle();
+    if (error || !inc?.user_id) {
+      setErr("No signed-in neighbor found with that email (they must have posted a report while signed in).");
+      return;
+    }
+    if (inc.user_id === me) {
+      setErr("That’s your email.");
+      return;
+    }
+    preferredOtherId.current = inc.user_id;
+    const id = await openOrCreate(me, inc.user_id);
+    if (id) setActiveId(id);
+    setEmailInput("");
+    setErr(null);
+    await loadConvos(me);
+  };
 
   useEffect(() => {
     if (!activeId) return;
@@ -127,6 +161,30 @@ export default function ChatPage({ initialUserId }: Props) {
     };
   }, [activeId]);
 
+  const notifyOther = async (conversationId: string) => {
+    const convo = convos.find((c) => c.id === conversationId);
+    const otherId = convo?.otherId;
+    if (!otherId) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-incident-push`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          kind: "message",
+          target_user_id: otherId,
+          title: "New message",
+          category: "message",
+        }),
+      });
+    } catch {
+      // non-blocking
+    }
+  };
+
   const send = async () => {
     if (!me || !activeId || !text.trim()) return;
     const body = text.trim();
@@ -137,6 +195,7 @@ export default function ChatPage({ initialUserId }: Props) {
       body,
     });
     if (error) setErr(error.message);
+    else notifyOther(activeId);
   };
 
   if (err === "Sign in to use Chat.") {
@@ -148,15 +207,33 @@ export default function ChatPage({ initialUserId }: Props) {
   }
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-12rem)] max-w-4xl overflow-hidden rounded-2xl border border-slate-800">
-      <aside className="w-56 shrink-0 overflow-y-auto border-r border-slate-800 bg-slate-900/40 md:w-72">
+    <div className="mx-auto flex h-[calc(100vh-12rem)] max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-800 md:flex-row">
+      <aside className="max-h-40 shrink-0 overflow-y-auto border-b border-slate-800 bg-slate-900/40 md:max-h-none md:w-72 md:border-b-0 md:border-r">
+        <div className="flex gap-2 p-2">
+          <input
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && startByEmail()}
+            placeholder="Message by email…"
+            className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-xs text-white outline-none"
+          />
+          <button
+            onClick={startByEmail}
+            className="shrink-0 rounded-lg bg-white px-2 text-xs font-medium text-slate-900"
+          >
+            Start
+          </button>
+        </div>
         {convos.length === 0 && (
-          <p className="p-4 text-xs text-slate-500">No conversations yet. Use Message privately on a report.</p>
+          <p className="p-4 text-xs text-slate-500">No conversations yet. Use Message privately or type an email.</p>
         )}
         {convos.map((c) => (
           <button
             key={c.id}
-            onClick={() => setActiveId(c.id)}
+            onClick={() => {
+              preferredOtherId.current = c.otherId;
+              setActiveId(c.id);
+            }}
             className={`block w-full truncate px-3 py-3 text-left text-xs ${
               activeId === c.id ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800/50"
             }`}
@@ -166,7 +243,7 @@ export default function ChatPage({ initialUserId }: Props) {
         ))}
       </aside>
       <section className="flex min-w-0 flex-1 flex-col">
-        <div className="flex-1 space-y-2 overflow-y-auto p-4">
+        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
           {messages.map((m) => (
             <div
               key={m.id}
@@ -179,15 +256,15 @@ export default function ChatPage({ initialUserId }: Props) {
           ))}
         </div>
         {activeId && (
-          <div className="flex gap-2 border-t border-slate-800 p-3">
+          <div className="flex shrink-0 items-center gap-2 border-t border-slate-800 p-3">
             <input
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && send()}
               placeholder="Type a message…"
-              className="flex-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none"
+              className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none"
             />
-            <button onClick={send} className="rounded-lg bg-white p-2 text-slate-900">
+            <button onClick={send} className="shrink-0 rounded-lg bg-white p-2 text-slate-900">
               <Send size={16} />
             </button>
           </div>
