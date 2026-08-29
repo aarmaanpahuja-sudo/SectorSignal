@@ -215,7 +215,7 @@ location_description: "",
       Zip code community
     </label>
     {zones.length > 0 ? (
-      <select
+                          <select
                       value={zip}
                       onChange={(e) => {
                         setZip(e.target.value);
@@ -224,6 +224,9 @@ location_description: "",
                       }}
                       className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white outline-none transition-all duration-200 focus:border-slate-500"
                     >
+                      {zip && !zones.some((z) => z.zip_code === zip) && (
+                        <option value={zip}>{zip} — detected from GPS</option>
+                      )}
                       {zones.map((z) => (
                         <option key={z.zip_code} value={z.zip_code}>
                           {z.zip_code}
