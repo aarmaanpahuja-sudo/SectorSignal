@@ -55,7 +55,7 @@ export function useWatchTowerData(userId: string | null) {
     };
   }, [clientId, userId]);
 
-  // Realtime subscriptions — sync across all clients instantly
+
   useEffect(() => {
     const incChannel = supabase
       .channel("incidents-realtime")
@@ -197,11 +197,29 @@ export function useWatchTowerData(userId: string | null) {
       p_client: clientId,
       p_user: userId ?? null,
     });
-    if (error) throw error;
+        if (error) throw error;
     const newCount = data as number;
     setIncidents((prev) =>
       prev.map((i) => (i.id === id ? { ...i, verifications: newCount } : i))
     );
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-incident-push`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          kind: "verify",
+          incident_id: id,
+          title: "Someone verified your report",
+        }),
+      });
+    } catch {
+      // non-blocking
+    }
   }, [clientId, userId]);
 
   const addComment = useCallback(
@@ -213,12 +231,31 @@ export function useWatchTowerData(userId: string | null) {
         author_id: clientId,
       };
       if (userId) row.user_id = userId;
-      const { data, error } = await supabase
+            const { data, error } = await supabase
         .from("comments")
         .insert(row)
         .select("*")
         .single();
       if (error) throw error;
+
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-incident-push`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            kind: "comment",
+            incident_id: incidentId,
+            title: "New comment on your report",
+          }),
+        });
+      } catch {
+        // non-blocking
+      }
+
       return data as Comment;
     },
     [clientId, userId]
