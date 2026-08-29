@@ -115,7 +115,13 @@ export function useWatchTowerData(userId: string | null) {
   // Actions
           const addIncident = useCallback(
     async (input: Omit<Incident, "id" | "created_at" | "updated_at" | "status" | "verifications" | "reporter_id" | "user_id">) => {
-      const row: Record<string, unknown> = { ...input, reporter_id: clientId };
+            const { data: authData } = await supabase.auth.getUser();
+      const row: Record<string, unknown> = {
+        ...input,
+        reporter_id: clientId,
+        author_name: profile?.display_name || "Neighbor",
+        author_email: authData.user?.email ?? null,
+      };
       if (userId) row.user_id = userId;
 
       const { data: insertedIncident, error } = await supabase
@@ -160,7 +166,7 @@ export function useWatchTowerData(userId: string | null) {
 
       return insertedIncident as Incident;
     },
-    [clientId, userId]
+        [clientId, userId, profile?.display_name]
   );
 
   const resolveIncident = useCallback(async (id: string) => {
