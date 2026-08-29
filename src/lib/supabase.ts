@@ -43,6 +43,8 @@ export interface Incident {
   longitude: number | null;
   reporter_id: string | null;
   user_id: string | null;
+  author_name: string | null;
+  author_email: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -64,6 +66,7 @@ export interface WatchZone {
   zip_code: string;
   label: string | null;
   created_at: string;
+  memberCount?: number;
 }
 
 export interface Profile {
