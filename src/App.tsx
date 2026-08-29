@@ -20,6 +20,8 @@ import {
   Download,
   Menu,
   X,
+  Bell,
+  MessageCircle,
 } from "lucide-react";
 import { useWatchTowerData } from "./lib/useWatchTowerData";
 import { useAuth } from "./lib/useAuth";
@@ -390,8 +392,12 @@ if (search.trim()) {
   }
   zones={data.zones}
 />
-                    ) : view === "install" ? (
+) : view === "install" ? (
   <InstallPage />
+) : view === "notifications" ? (
+  <NotificationsPage />
+) : view === "chat" ? (
+  <ChatPage initialUserId={chatWithUserId} />
 ) : view === "about" ? (
   // ==================== ABOUT PAGE ====================
   <div className="mx-auto max-w-2xl p-6 space-y-8">
