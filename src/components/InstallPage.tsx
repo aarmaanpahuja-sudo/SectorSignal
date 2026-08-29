@@ -165,11 +165,6 @@ export default function InstallPage() {
     </button>
   )}
 
-  {notifMessage && (
-    <p className="mt-3 text-xs text-slate-400">{notifMessage}</p>
-  )}
-</div>
-
       {/* Android / Chrome */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
         <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
