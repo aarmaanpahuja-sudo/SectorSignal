@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, Share, Smartphone, CheckCircle2, Bell, BellOff } from "lucide-react";
+import { Download, Share, Smartphone, CheckCircle2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { getOrCreateClientId } from "../lib/clientId";
 
@@ -149,18 +149,6 @@ export default function InstallPage() {
         </p>
       </div>
 
-      {/* Notifications */}
-<div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-  <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
-    <Bell size={16} />
-    Notifications
-  </h3>
-
-  {notifStatus === "enabled" ? (
-    <div className="flex items-center gap-2 text-sm text-emerald-400">
-      <CheckCircle2 size={16} />
-      Notifications are enabled
-    </div>
   ) : notifStatus === "denied" ? (
     <div className="flex items-center gap-2 text-sm text-red-400">
       <BellOff size={16} />
