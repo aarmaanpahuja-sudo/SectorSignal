@@ -11,11 +11,12 @@ interface Props {
   onResolve: (id: string) => Promise<void>;
   onVerify: (id: string) => Promise<void>;
   onComment: (incidentId: string, body: string, authorName: string) => Promise<unknown>;
-  authorName: string;
+    authorName: string;
   onOpenMap: (incident: Incident) => void;
+  onMessagePoster?: (incident: Incident) => void;
 }
 
-export default function IncidentCard({ incident, comments, onResolve, onVerify, onComment, authorName, onOpenMap }: Props) {
+export default function IncidentCard({ incident, comments, onResolve, onVerify, onComment, authorName, onOpenMap, onMessagePoster }: Props) {
   const meta = CATEGORIES[incident.category];
   const Icon = meta.icon;
   const resolved = incident.status === "resolved";
@@ -91,9 +92,13 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
               {incident.title}
             </h3>
 
-            {incident.description && (
+                        {incident.description && (
               <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{incident.description}</p>
             )}
+
+            <p className="mt-2 text-xs text-slate-400">
+              Posted by {incident.author_name || "Neighbor"}
+            </p>
 
             {incident.location_description && (
               <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
@@ -127,6 +132,14 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
             >
               <Maximize2 size={13} />
               Enlarge
+            </button>
+          )}
+                    {incident.user_id && (
+            <button
+              onClick={() => onMessagePoster?.(incident)}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all duration-200 hover:bg-slate-800"
+            >
+              Message privately
             </button>
           )}
           {!resolved && (
