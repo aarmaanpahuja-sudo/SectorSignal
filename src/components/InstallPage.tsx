@@ -149,22 +149,6 @@ export default function InstallPage() {
         </p>
       </div>
 
-  ) : notifStatus === "denied" ? (
-    <div className="flex items-center gap-2 text-sm text-red-400">
-      <BellOff size={16} />
-      Permission denied — enable it in your browser/phone settings
-    </div>
-  ) : (
-    <button
-      onClick={enableNotifications}
-      disabled={notifLoading}
-      className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-200 disabled:opacity-50"
-    >
-      <Bell size={18} />
-      {notifLoading ? "Enabling…" : "Enable Notifications"}
-    </button>
-  )}
-
       {/* Android / Chrome */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
         <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
