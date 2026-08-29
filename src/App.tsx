@@ -29,8 +29,10 @@ import ReportModal from "./components/ReportModal";
 import MapView from "./components/MapView";
 import AuthModal from "./components/AuthModal";
 import InstallPage from "./components/InstallPage";
+import NotificationsPage from "./components/NotificationsPage";
+import ChatPage from "./components/ChatPage";
 
-type View = "feed" | "map" | "zones" | "analytics" | "about" | "install" | "privacy";
+type View = "feed" | "map" | "zones" | "analytics" | "about" | "install" | "privacy" | "chat" | "notifications";
 
 const NAV: { id: View; label: string; icon: any }[] = [
   { id: "feed", label: "Feed", icon: Home },
@@ -38,6 +40,8 @@ const NAV: { id: View; label: string; icon: any }[] = [
   { id: "zones", label: "Zones", icon: MapPin },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "install", label: "Install", icon: Download },
+  { id: "notifications", label: "Notifications", icon: Bell },
+  { id: "chat", label: "Chat", icon: MessageCircle },
   { id: "about", label: "About", icon: Info },
   { id: "privacy", label: "Privacy", icon: ShieldCheck },
 ];
@@ -53,6 +57,7 @@ export default function App() {
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "resolved">("active");
   const [selectedIncident, setSelectedIncident] = useState<ReturnType<typeof useWatchTowerData>["incidents"][number] | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [chatWithUserId, setChatWithUserId] = useState<string | null>(null);
 
   const zoneOptions = data.zones;
   const openIncidentMap = (incident: ReturnType<typeof useWatchTowerData>["incidents"][number]) => {
@@ -347,7 +352,16 @@ if (search.trim()) {
               onVerify={data.verifyIncident}
               onComment={data.addComment}
               authorName={data.profile?.display_name || "Neighbor"}
-onOpenMap={openIncidentMap}
+              onOpenMap={openIncidentMap}
+              onMessagePoster={(inc) => {
+                if (!auth.user) {
+                  setAuthOpen(true);
+                  return;
+                }
+                if (!inc.user_id) return;
+                setChatWithUserId(inc.user_id);
+                setView("chat");
+              }}
             />
           ) : view === "map" ? (
             <div className="h-[calc(100vh-13rem)] w-full overflow-hidden rounded-2xl border border-slate-800 md:h-[calc(100vh-9.5rem)]">
@@ -625,7 +639,8 @@ function FeedView({
   onVerify,
   onComment,
   authorName,
-onOpenMap,
+  onOpenMap,
+  onMessagePoster,
 }: {
   incidents: ReturnType<typeof useWatchTowerData>["incidents"];
   comments: ReturnType<typeof useWatchTowerData>["comments"];
@@ -635,7 +650,8 @@ onOpenMap,
   onVerify: ReturnType<typeof useWatchTowerData>["verifyIncident"];
   onComment: (incidentId: string, body: string, authorName: string) => Promise<unknown>;
   authorName: string;
-  onOpenMap: (incident: ReturnType<typeof useWatchTowerData>["incidents"][number]) => void;
+    onOpenMap: (incident: ReturnType<typeof useWatchTowerData>["incidents"][number]) => void;
+  onMessagePoster: (incident: ReturnType<typeof useWatchTowerData>["incidents"][number]) => void;
 }) {
   const tabs: { id: "active" | "resolved" | "all"; label: string }[] = [
     { id: "active", label: "Active" },
@@ -678,7 +694,8 @@ onOpenMap,
             onVerify={onVerify}
             onComment={onComment}
             authorName={authorName}
-onOpenMap={onOpenMap}
+            onOpenMap={onOpenMap}
+            onMessagePoster={onMessagePoster}
           />
         ))
       )}
