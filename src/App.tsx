@@ -461,7 +461,7 @@ Through this project, we hope to show how technology can bring people together a
     <section className="space-y-3">
       <h2 className="text-xl font-semibold text-white">1. Introduction</h2>
       <p>
-        SectorSignal (“we,” “us,” or “our”) is a real-time neighborhood safety platform that enables community members to report and track local incidents such as open garage doors, unattended packages, lost/found pets, property vandalism, suspicious activity, and safe-walk requests. The service is available at https://vexgrid.vercel.app (and related domains or progressive web app installs).
+        SectorSignal (“we,” “us,” or “our”) is a real-time neighborhood safety platform that enables community members to report and track local incidents such as open garage doors, unattended packages, lost/found pets, property vandalism, suspicious activity, and safe-walk requests. The service is available at https://sector-signal.vercel.app/ (and related domains or progressive web app installs).
       </p>
       <p>
         This Privacy Policy explains what information we collect, how we use and share it, and the choices you have. By using SectorSignal you agree to the practices described here.
