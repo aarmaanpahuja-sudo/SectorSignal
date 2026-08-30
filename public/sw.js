@@ -5,10 +5,10 @@ self.addEventListener("push", (event) => {
   try {
     data = event.data.json();
   } catch (e) {
-    data = { title: "VexGrid", body: event.data.text() };
+    data = { title: "SectorSafe", body: event.data.text() };
   }
 
-  const title = data.title || "VexGrid Alert";
+  const title = data.title || "SectorSafe Alert";
   const options = {
     body: data.body || "New incident in your community",
     icon: "/icons/icon-192.png",
