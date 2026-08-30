@@ -9,6 +9,7 @@ interface Props {
   incident: Incident;
   comments: Comment[];
   onResolve: (id: string) => Promise<void>;
+  onUnresolve: (id: string) => Promise<void>;
   onVerify: (id: string) => Promise<void>;
   onComment: (incidentId: string, body: string, authorName: string) => Promise<unknown>;
     authorName: string;
@@ -16,7 +17,7 @@ interface Props {
   onMessagePoster?: (incident: Incident) => void;
 }
 
-export default function IncidentCard({ incident, comments, onResolve, onVerify, onComment, authorName, onOpenMap, onMessagePoster }: Props) {
+export default function IncidentCard({ incident, comments, onResolve, onVerify, onComment, authorName, onOpenMap, onMessagePoster, onUnresolve }: Props) {
   const meta = CATEGORIES[incident.category];
   const Icon = meta.icon;
   const resolved = incident.status === "resolved";
@@ -142,13 +143,20 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
               Message privately
             </button>
           )}
-          {!resolved && (
+                    {!resolved ? (
             <button
               onClick={() => onResolve(incident.id)}
               className="flex shrink-0 items-center gap-1.5 rounded-lg border border-emerald-600/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300 transition-all duration-200 hover:bg-emerald-500/20"
             >
               <Check size={13} />
               Resolve
+            </button>
+          ) : (
+            <button
+              onClick={() => onUnresolve(incident.id)}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-amber-600/40 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-300 transition-all duration-200 hover:bg-amber-500/20"
+            >
+              Un-Resolve
             </button>
           )}
         </div>
