@@ -169,23 +169,37 @@ export function useWatchTowerData(userId: string | null) {
         [clientId, userId, profile?.display_name]
   );
 
-  const resolveIncident = useCallback(async (id: string) => {
-
+    const resolveIncident = useCallback(async (id: string) => {
     setIncidents((prev) =>
       prev.map((i) => (i.id === id ? { ...i, status: "resolved" } : i))
     );
-
     try {
       const { error } = await supabase
         .from("incidents")
         .update({ status: "resolved", updated_at: new Date().toISOString() })
         .eq("id", id);
-
       if (error) throw error;
     } catch (err) {
-
       setIncidents((prev) =>
         prev.map((i) => (i.id === id ? { ...i, status: "active" } : i))
+      );
+      throw err;
+    }
+  }, []);
+
+  const unresolveIncident = useCallback(async (id: string) => {
+    setIncidents((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, status: "active" } : i))
+    );
+    try {
+      const { error } = await supabase
+        .from("incidents")
+        .update({ status: "active", updated_at: new Date().toISOString() })
+        .eq("id", id);
+      if (error) throw error;
+    } catch (err) {
+      setIncidents((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, status: "resolved" } : i))
       );
       throw err;
     }
@@ -352,6 +366,7 @@ export function useWatchTowerData(userId: string | null) {
     error,
     addIncident,
     resolveIncident,
+    unresolveIncident,
     verifyIncident,
     addComment,
     addZone,
