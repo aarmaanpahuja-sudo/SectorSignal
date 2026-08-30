@@ -351,6 +351,7 @@ if (search.trim()) {
               statusFilter={statusFilter}
               setStatusFilter={setStatusFilter}
               onResolve={data.resolveIncident}
+              onUnresolve={data.unresolveIncident}
               onVerify={data.verifyIncident}
               onComment={data.addComment}
               authorName={data.profile?.display_name || "Neighbor"}
@@ -642,6 +643,7 @@ function FeedView({
   statusFilter,
   setStatusFilter,
   onResolve,
+  onUnresolve,
   onVerify,
   onComment,
   authorName,
@@ -653,6 +655,7 @@ function FeedView({
   statusFilter: "all" | "active" | "resolved";
   setStatusFilter: (s: "all" | "active" | "resolved") => void;
   onResolve: ReturnType<typeof useWatchTowerData>["resolveIncident"];
+  onUnresolve: ReturnType<typeof useWatchTowerData>["unresolveIncident"];
   onVerify: ReturnType<typeof useWatchTowerData>["verifyIncident"];
   onComment: (incidentId: string, body: string, authorName: string) => Promise<unknown>;
   authorName: string;
@@ -697,6 +700,7 @@ function FeedView({
             incident={inc}
             comments={comments}
             onResolve={onResolve}
+            onUnresolve={onUnresolve}
             onVerify={onVerify}
             onComment={onComment}
             authorName={authorName}
