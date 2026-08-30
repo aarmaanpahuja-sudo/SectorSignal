@@ -1,6 +1,6 @@
 {
-  "name": "VexGrid",
-  "short_name": "VexGrid",
+  "name": "SectorSafe",
+  "short_name": "SectorSafe",
   "description": "Real-time neighborhood safety platform",
   "start_url": "/",
   "display": "standalone",
