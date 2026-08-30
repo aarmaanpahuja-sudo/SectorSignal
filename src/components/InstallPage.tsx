@@ -162,7 +162,7 @@ export default function InstallPage() {
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-200"
           >
             <Download size={18} />
-            Install SectorSafe
+            Install SectorSignal
           </button>
         ) : (
           <div className="space-y-3 text-sm text-slate-300">
