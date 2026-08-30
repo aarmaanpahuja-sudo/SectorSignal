@@ -131,7 +131,7 @@ export default function InstallPage() {
         </div>
         <h2 className="text-xl font-semibold text-white">You’re all set!</h2>
         <p className="mt-2 text-sm text-slate-400">
-          VexGrid is installed and notifications are enabled.
+          SectorSignal is installed and notifications are enabled.
         </p>
       </div>
     );
@@ -143,9 +143,9 @@ export default function InstallPage() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-900">
           <Smartphone size={28} />
         </div>
-        <h2 className="text-xl font-semibold text-white">Install VexGrid</h2>
+        <h2 className="text-xl font-semibold text-white">Install SectorSignal</h2>
         <p className="mt-2 text-sm text-slate-400">
-          Add VexGrid to your home screen and enable notifications so you never miss an alert in your community.
+          Add SectorSignal to your home screen and enable notifications so you never miss an alert in your community.
         </p>
       </div>
 
@@ -162,7 +162,7 @@ export default function InstallPage() {
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-200"
           >
             <Download size={18} />
-            Install VexGrid
+            Install SectorSignal
           </button>
         ) : (
           <p className="text-sm text-slate-400">
