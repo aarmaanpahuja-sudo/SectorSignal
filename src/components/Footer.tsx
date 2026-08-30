@@ -43,7 +43,7 @@ export default function Footer() {
 
             {/* GitHub */}
             <a
-              href="https://github.com/aarmaanpahuja-sudo/VexGrid"
+              href="https://github.com/aarmaanpahuja-sudo/SectorSignal"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
