@@ -445,7 +445,7 @@ Through this project, we hope to show how technology can bring people together a
     <div>
       <h2 className="text-xl font-semibold text-white mb-2">Contact</h2>
       <p className="text-slate-300">
-        vexgrid866@gmail.com
+        sectorsafe3@gmail.com
       </p>
     </div>
   </div>
@@ -607,7 +607,7 @@ Through this project, we hope to show how technology can bring people together a
     <section className="space-y-3">
       <h2 className="text-xl font-semibold text-white">12. Contact Us</h2>
       <p>
-        For privacy-related questions, data requests, or concerns, please contact the operators of SectorSignal via vexgrid866@gmail.com or the project repository associated with the application.
+        For privacy-related questions, data requests, or concerns, please contact the operators of SectorSignal via sectorsafe3@gmail.com or the project repository associated with the application.
       </p>
     </section>
   </div>
