@@ -127,7 +127,7 @@ if (search.trim()) {
                   <Shield size={18} />
                 </span>
                 <div>
-                  <h1 className="text-base font-semibold text-white">VexGrid</h1>
+                  <h1 className="text-base font-semibold text-white">SectorSignal</h1>
                   <p className="text-[11px] text-slate-400">Neighborhood safety</p>
                 </div>
               </div>
@@ -172,7 +172,7 @@ if (search.trim()) {
     <Shield size={20} />
   </span>
   <div>
-    <h1 className="text-base font-semibold tracking-tight text-white">VexGrid</h1>
+    <h1 className="text-base font-semibold tracking-tight text-white">SectorSignal</h1>
     <p className="text-[11px] text-slate-400">Real-time neighborhood safety</p>
   </div>
 </div>
@@ -402,9 +402,9 @@ if (search.trim()) {
   // ==================== ABOUT PAGE ====================
   <div className="mx-auto max-w-2xl p-6 space-y-8">
     <div>
-      <h1 className="text-3xl font-bold text-white mb-2">About VexGrid</h1>
+      <h1 className="text-3xl font-bold text-white mb-2">About SectorSignal</h1>
       <p className="text-slate-400">
-        VexGrid is a community-driven safety platform that helps neighbors
+        SectorSignal is a community-driven safety platform that helps neighbors
         stay informed and look out for each other in real time. While we designed this app for Loudoun, we designed it to work in any U.S. community.
       </p>
     </div>
@@ -427,10 +427,10 @@ if (search.trim()) {
     <div>
       <h2 className="text-xl font-semibold text-white mb-2">About Us</h2>
       <p className="text-slate-300">
-        You may be wondering, “What exactly is this project?” To answer your question, VexGrid is a project created for the Step Up Loudoun Youth Competition by 9th graders Aarmaan Pahuja and Aditya Ghosh, along with 7th graders Abhir Pahuja and Ayaan Priyal.
+        You may be wondering, “What exactly is this project?” To answer your question, SectorSignal is a project created for the Step Up Loudoun Youth Competition by 9th graders Aarmaan Pahuja and Aditya Ghosh, along with 7th graders Abhir Pahuja and Ayaan Priyal.
 We all live in communities where neighbors look out for each other, but we noticed that there was not an easy way for people to quickly share important local updates. Whether it is an unattended package, a lost pet, suspicious activity, vandalism, or a request for a safe walk, important information can easily go unnoticed. We wanted to create a platform that helps communities stay connected, informed, and safer.
-VexGrid is a real-time neighborhood safety platform where residents can report and track local incidents within their community. Users can view active reports, receive updates, communicate through comments, verify incidents, and monitor specific watch zones that matter to them. By making it easier for neighbors to work together, VexGrid helps communities respond faster and support each other.
-However, technology alone cannot create a safer community. VexGrid is designed to encourage awareness, responsibility, and cooperation between neighbors. The goal is not to expose problems, but to give communities the tools they need to help one another and prevent small issues from becoming bigger ones.
+SectorSignal is a real-time neighborhood safety platform where residents can report and track local incidents within their community. Users can view active reports, receive updates, communicate through comments, verify incidents, and monitor specific watch zones that matter to them. By making it easier for neighbors to work together, SectorSignal helps communities respond faster and support each other.
+However, technology alone cannot create a safer community. SectorSignal is designed to encourage awareness, responsibility, and cooperation between neighbors. The goal is not to expose problems, but to give communities the tools they need to help one another and prevent small issues from becoming bigger ones.
 Through this project, we hope to show how technology can bring people together and create stronger, more connected neighborhoods.
       </p>
     </div>
@@ -460,10 +460,10 @@ Through this project, we hope to show how technology can bring people together a
     <section className="space-y-3">
       <h2 className="text-xl font-semibold text-white">1. Introduction</h2>
       <p>
-        VexGrid (“we,” “us,” or “our”) is a real-time neighborhood safety platform that enables community members to report and track local incidents such as open garage doors, unattended packages, lost/found pets, property vandalism, suspicious activity, and safe-walk requests. The service is available at https://vexgrid.vercel.app (and related domains or progressive web app installs).
+        SectorSignal (“we,” “us,” or “our”) is a real-time neighborhood safety platform that enables community members to report and track local incidents such as open garage doors, unattended packages, lost/found pets, property vandalism, suspicious activity, and safe-walk requests. The service is available at https://vexgrid.vercel.app (and related domains or progressive web app installs).
       </p>
       <p>
-        This Privacy Policy explains what information we collect, how we use and share it, and the choices you have. By using VexGrid you agree to the practices described here.
+        This Privacy Policy explains what information we collect, how we use and share it, and the choices you have. By using SectorSignal you agree to the practices described here.
       </p>
     </section>
 
@@ -520,7 +520,7 @@ Through this project, we hope to show how technology can bring people together a
 
     <section className="space-y-3">
       <h2 className="text-xl font-semibold text-white">4. Public Nature of Community Content</h2>
-      <p>VexGrid is designed as a community bulletin board:</p>
+      <p>SectorSignal is designed as a community bulletin board:</p>
       <ul className="list-disc list-inside space-y-1 ml-2">
         <li><strong>Incidents</strong> (including category, title, description, zip code, status, verification count, and associated latitude/longitude) and <strong>comments</strong> are publicly readable by anyone using the service.</li>
         <li>Precise location coordinates attached to reports appear on the interactive map and are visible to other users.</li>
@@ -585,14 +585,14 @@ Through this project, we hope to show how technology can bring people together a
     <section className="space-y-3">
       <h2 className="text-xl font-semibold text-white">9. Children’s Privacy</h2>
       <p>
-        VexGrid is not directed at children under 13 (or the applicable age in your jurisdiction). We do not knowingly collect personal information from children. If you believe we have collected such information, please contact us so we can delete it.
+        SectorSignal is not directed at children under 13 (or the applicable age in your jurisdiction). We do not knowingly collect personal information from children. If you believe we have collected such information, please contact us so we can delete it.
       </p>
     </section>
 
     <section className="space-y-3">
       <h2 className="text-xl font-semibold text-white">10. International Users</h2>
       <p>
-        The service is operated with infrastructure that may process data in the United States or other locations where Supabase and Vercel operate. By using VexGrid you consent to the transfer of information to those locations.
+        The service is operated with infrastructure that may process data in the United States or other locations where Supabase and Vercel operate. By using SectorSignal you consent to the transfer of information to those locations.
       </p>
     </section>
 
@@ -606,7 +606,7 @@ Through this project, we hope to show how technology can bring people together a
     <section className="space-y-3">
       <h2 className="text-xl font-semibold text-white">12. Contact Us</h2>
       <p>
-        For privacy-related questions, data requests, or concerns, please contact the operators of VexGrid via vexgrid866@gmail.com or the project repository associated with the application.
+        For privacy-related questions, data requests, or concerns, please contact the operators of SectorSignal via vexgrid866@gmail.com or the project repository associated with the application.
       </p>
     </section>
   </div>
