@@ -436,13 +436,6 @@ Through this project, we hope to show how technology can bring people together a
       </p>
     </div>
     <div>
-      <h2 className="text-xl font-semibold text-white mb-2">Our Mission</h2>
-      <p className="text-slate-300">
-        We believe that safer neighborhoods start with better information.
-        By sharing what we see, we can all look out for each other.
-      </p>
-    </div>
-    <div>
       <h2 className="text-xl font-semibold text-white mb-2">Contact</h2>
       <p className="text-slate-300">
         sectorsafe3@gmail.com
