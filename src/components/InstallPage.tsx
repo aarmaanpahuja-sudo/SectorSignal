@@ -156,18 +156,38 @@ export default function InstallPage() {
           Android / Chrome
         </h3>
 
-        {deferredPrompt ? (
+                {deferredPrompt ? (
           <button
             onClick={handleInstallClick}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-200"
           >
             <Download size={18} />
-            Install SectorSignal
+            Install SectorSafe
           </button>
         ) : (
-          <p className="text-sm text-slate-400">
-            Open this page in Chrome on your Android phone. An install button will appear here when available.
-          </p>
+          <div className="space-y-3 text-sm text-slate-300">
+            <p className="text-slate-400">
+              If the install button does not appear, add it from Chrome:
+            </p>
+            <ol className="space-y-3">
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs font-medium text-slate-300">1</span>
+                <span>Open this site in <strong className="text-white">Chrome</strong> on Android (not another browser).</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs font-medium text-slate-300">2</span>
+                <span>Tap the <strong className="text-white">three dots</strong> in the top right.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs font-medium text-slate-300">3</span>
+                <span>Tap <strong className="text-white">Add to Home screen</strong> or <strong className="text-white">Install app</strong>.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs font-medium text-slate-300">4</span>
+                <span>Tap <strong className="text-white">Install</strong> / <strong className="text-white">Add</strong>, then open it from your home screen.</span>
+              </li>
+            </ol>
+          </div>
         )}
       </div>
 
