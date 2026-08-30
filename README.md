@@ -1,4 +1,4 @@
-# VexGrid
+# SectorSignal
 
 A real-time neighborhood safety platform where neighbors report and track local incidents — open garage doors, unattended packages, lost pets, vandalism, suspicious activity, and safe-walk requests. Built for communities to stay informed and look out for each other.
 
@@ -18,7 +18,7 @@ Website: https://vexgrid.vercel.app
 - **Analytics dashboard** — Breakdown of reports by category and zip code
 - **Real-time sync** — New reports, comments, and status changes appear instantly across all devices via Supabase Realtime
 - **Optional accounts** — Use the app anonymously (browser-based) or sign up with email/password to save your profile across devices
-- **Installable PWA** — Add VexGrid to your phone home screen for a full-screen, app-like experience (no App Store required)
+- **Installable PWA** — Add SectorSignal to your phone home screen for a full-screen, app-like experience (no App Store required)
 - **Push notifications** — Optional alerts when a new incident is filed in a zip code you watch (enable on the Install page)
 
 ## Incident Categories
@@ -71,7 +71,7 @@ Create a `.env` file with your Supabase credentials:
 
 ## Progressive Web App & Notifications
 
-VexGrid can be installed to a phone home screen from the **Install** page in the app.
+SectorSignal can be installed to a phone home screen from the **Install** page in the app.
 
 Optional push notifications:
 
