@@ -1,6 +1,6 @@
 {
-  "name": "SectorSafe",
-  "short_name": "SectorSafe",
+  "name": "SectorSignal",
+  "short_name": "SectorSignal",
   "description": "Real-time neighborhood safety platform",
   "start_url": "/",
   "display": "standalone",
