@@ -448,7 +448,7 @@ Through this project, we hope to show how technology can bring people together a
   <div className="mx-auto max-w-3xl p-6 space-y-8 text-slate-300">
     <div>
       <h1 className="text-3xl font-bold text-white mb-2">Privacy Policy</h1>
-      <p className="text-slate-400 text-sm">Last Updated: August 28, 2026</p>
+      <p className="text-slate-400 text-sm">Last Updated: August 31, 2026</p>
     </div>
 
     <section className="space-y-3">
@@ -476,7 +476,7 @@ Through this project, we hope to show how technology can bring people together a
       <h3 className="text-lg font-medium text-white mt-4">B. Automatically Collected / Device Information</h3>
       <ul className="list-disc list-inside space-y-1 ml-2">
         <li><strong>Anonymous client identifier</strong>: A randomly generated UUID (<code>client_id</code>) created in your browser and stored in localStorage. This identifies your activity in anonymous mode and is sent with requests so the system can associate your private data (watch zones, profile) with you.</li>
-        <li><strong>Location data</strong>: When you file a report, the app may request your device’s geolocation (via the browser Geolocation API). If granted, latitude and longitude are stored with the incident and may be used to automatically suggest the local zip code (reverse geocoding). You can still edit the zip. If geolocation is denied, you can enter a zip manually; approximate map position may be derived from that zip.</li>
+        <li><strong>Location data</strong>: When you file a report, the app may request your device’s geolocation (via the browser Geolocation API). If granted, latitude and longitude are stored with the incident and may be used to automatically suggest the local zip code (reverse geocoding). If geolocation is denied, you can enter a zip manually; approximate map position may be derived from that zip.</li>
         <li><strong>Technical data</strong>: Standard request metadata handled by our backend provider (IP address, user agent, timestamps) as part of normal web service operation. We do not operate our own analytics or tracking scripts in the application code.</li>
       </ul>
 
@@ -562,7 +562,6 @@ Through this project, we hope to show how technology can bring people together a
       <ul className="list-disc list-inside space-y-1 ml-2">
         <li>Use the app anonymously (browser <code>client_id</code> only) or create an optional account.</li>
         <li>Grant or deny geolocation permission in your browser.</li>
-        <li>Edit an auto-filled zip code before posting a report.</li>
         <li>Edit your display name.</li>
         <li>Add or remove watch zones.</li>
         <li>Enable or disable push notifications in the app (Install page) and in your device/browser settings.</li>
