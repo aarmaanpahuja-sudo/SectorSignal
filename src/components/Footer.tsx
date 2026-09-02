@@ -43,7 +43,7 @@ export default function Footer() {
 
             {/* GitHub */}
             <a
-              href="https://github.com/aarmaanpahuja-sudo/SectorSignal"
+              href="https://github.com/aarmaanpahuja-sudo/SectorSignal---Public"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
