@@ -163,10 +163,7 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
 
         {hasCoords && (
           <div className="mt-3 border-t border-slate-800 pt-3">
-            <div className="mb-2 flex items-center gap-1.5 text-xs text-slate-400">
-              <MapPin size={12} className="text-slate-500" />
-              {incident.latitude!.toFixed(5)}, {incident.longitude!.toFixed(5)}
-            </div>
+              <CoordLinks lat={incident.latitude!} lng={incident.longitude!} />
             <MiniMap lat={incident.latitude!} lng={incident.longitude!} color={meta.pinColor} label={incident.title} />
           </div>
         )}
@@ -205,7 +202,41 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
             </div>
           </div>
         )}
-      </div>
+            </div>
+    </div>
+  );
+}
+
+function CoordLinks({ lat, lng }: { lat: number; lng: number }) {
+  const [open, setOpen] = useState(false);
+  const label = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  const apple = `https://maps.apple.com/?ll=${lat},${lng}&q=${lat},${lng}`;
+  const google = `https://www.google.com/maps?q=${lat},${lng}`;
+  const waze = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+
+  return (
+    <div className="relative mb-2">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1.5 text-xs text-sky-400 hover:underline"
+      >
+        <MapPin size={12} className="text-slate-500" />
+        {label}
+      </button>
+      {open && (
+        <div className="absolute left-0 top-6 z-20 min-w-[160px] rounded-lg border border-slate-700 bg-slate-900 p-1 shadow-xl">
+          <a href={apple} target="_blank" rel="noreferrer" className="block rounded-md px-3 py-2 text-xs text-slate-200 hover:bg-slate-800">
+            Apple Maps
+          </a>
+          <a href={google} target="_blank" rel="noreferrer" className="block rounded-md px-3 py-2 text-xs text-slate-200 hover:bg-slate-800">
+            Google Maps
+          </a>
+          <a href={waze} target="_blank" rel="noreferrer" className="block rounded-md px-3 py-2 text-xs text-slate-200 hover:bg-slate-800">
+            Waze
+          </a>
+        </div>
+      )}
     </div>
   );
 }
