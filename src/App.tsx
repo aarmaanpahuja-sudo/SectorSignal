@@ -7,7 +7,6 @@ import {
   BarChart3,
   Plus,
   Search,
-  Shield,
   Trash2,
   MapPin,
   TrendingUp,
@@ -123,9 +122,11 @@ if (search.trim()) {
               style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
             >
               <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-900">
-                  <Shield size={18} />
-                </span>
+                                <img
+                  src="/logo.png"
+                  alt="SectorSafe"
+                  className="h-9 w-9 rounded-xl object-contain"
+                />
                 <div>
                   <h1 className="text-base font-semibold text-white">SectorSignal</h1>
                   <p className="text-[11px] text-slate-400">Neighborhood safety</p>
@@ -168,9 +169,11 @@ if (search.trim()) {
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-800 bg-slate-900/40 backdrop-blur-sm md:flex">
         <div className="flex items-center gap-2.5 px-5 py-5">
-  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-900">
-    <Shield size={20} />
-  </span>
+                  <img
+                  src="/logo.png"
+                  alt="SectorSignal"
+                  className="h-9 w-9 rounded-xl object-contain"
+                />
   <div>
     <h1 className="text-base font-semibold tracking-tight text-white">SectorSignal</h1>
     <p className="text-[11px] text-slate-400">Real-time neighborhood safety</p>
