@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Loader2, Shield, Mail, Lock, User } from "lucide-react";
+import { X, Loader2, Mail, Lock, User } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -57,9 +57,7 @@ export default function AuthModal({ open, onClose, onSignIn, onSignUp }: Props) 
       <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/90 backdrop-blur-md shadow-2xl wt-fade-up">
         <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-900">
-              <Shield size={16} />
-            </span>
+                        <img src="/logo.png" alt="SectorSafe" className="h-8 w-8 rounded-lg object-contain" />
             <div>
               <h2 className="text-base font-semibold text-white">
                 {mode === "signin" ? "Sign in" : "Create account"}
