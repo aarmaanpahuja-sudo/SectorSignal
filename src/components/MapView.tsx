@@ -172,7 +172,13 @@ export default function MapView({ incidents, activeZip, onResolve, selectedIncid
         <div style="font-size:14px;font-weight:600;color:#f1f5f9;margin-bottom:4px">${escapeHtml(inc.title)}</div>
         ${inc.description ? `<div style="font-size:12px;color:#94a3b8;margin-bottom:6px;line-height:1.4">${escapeHtml(inc.description)}</div>` : ""}
         ${inc.location_description ? `<div style="font-size:11px;color:#64748b;margin-bottom:4px">${escapeHtml(inc.location_description)} · ${inc.zip_code}</div>` : ""}
-        <div style="font-size:11px;color:#38bdf8;margin-bottom:8px;font-family:monospace">${latStr}, ${lngStr}</div>
+        ${inc.latitude != null && inc.longitude != null ? `
+        <div style="font-size:11px;color:#38bdf8;margin-bottom:6px;font-family:monospace">${latStr}, ${lngStr}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+          <a href="https://maps.apple.com/?ll=${inc.latitude},${inc.longitude}&q=${inc.latitude},${inc.longitude}" target="_blank" rel="noreferrer" style="font-size:11px;color:#e2e8f0;background:#1e293b;border:1px solid #334155;border-radius:6px;padding:3px 8px;text-decoration:none">Apple Maps</a>
+          <a href="https://www.google.com/maps?q=${inc.latitude},${inc.longitude}" target="_blank" rel="noreferrer" style="font-size:11px;color:#e2e8f0;background:#1e293b;border:1px solid #334155;border-radius:6px;padding:3px 8px;text-decoration:none">Google Maps</a>
+          <a href="https://waze.com/ul?ll=${inc.latitude},${inc.longitude}&navigate=yes" target="_blank" rel="noreferrer" style="font-size:11px;color:#e2e8f0;background:#1e293b;border:1px solid #334155;border-radius:6px;padding:3px 8px;text-decoration:none">Waze</a>
+        </div>` : ""}
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
           <span style="font-size:11px;color:#94a3b8">${inc.verifications} neighbor${inc.verifications === 1 ? "" : "s"} verified</span>
           <button data-resolve style="font-size:12px;font-weight:600;color:#34d399;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:6px;padding:4px 10px;cursor:pointer">Mark as Resolved</button>
