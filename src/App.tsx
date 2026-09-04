@@ -242,9 +242,11 @@ if (search.trim()) {
   style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}
 >
   {/* Left: Logo (mobile only) */}
-  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-900 md:hidden">
-    <Shield size={16} />
-  </span>
+    <img
+    src="/logo.png"
+    alt="SectorSignal"
+    className="h-8 w-8 rounded-lg object-contain md:hidden"
+  />
 
   {/* Search (only on Feed) */}
   {view === "feed" && (
@@ -684,7 +686,7 @@ function FeedView({
 
       {incidents.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-800 py-16 text-center">
-          <Shield size={32} className="text-slate-700" />
+          <img src="/logo.png" alt="" className="h-10 w-10 object-contain opacity-70" />
           <p className="mt-3 text-sm text-slate-400">No alerts here yet.</p>
           <p className="text-xs text-slate-600">Be the first to file a report in this community.</p>
         </div>
