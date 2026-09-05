@@ -208,35 +208,43 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
 }
 
 function CoordLinks({ lat, lng }: { lat: number; lng: number }) {
-  const [open, setOpen] = useState(false);
   const label = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
   const apple = `https://maps.apple.com/?ll=${lat},${lng}&q=${lat},${lng}`;
   const google = `https://www.google.com/maps?q=${lat},${lng}`;
   const waze = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
 
   return (
-    <div className="relative mb-2">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 text-xs text-sky-400 hover:underline"
-      >
+    <div className="relative z-[9999] mb-2">
+      <p className="mb-1.5 flex items-center gap-1.5 text-xs text-slate-400">
         <MapPin size={12} className="text-slate-500" />
         {label}
-      </button>
-      {open && (
-        <div className="absolute left-0 top-6 z-20 min-w-[160px] rounded-lg border border-slate-700 bg-slate-900 p-1 shadow-xl">
-          <a href={apple} target="_blank" rel="noreferrer" className="block rounded-md px-3 py-2 text-xs text-slate-200 hover:bg-slate-800">
-            Apple Maps
-          </a>
-          <a href={google} target="_blank" rel="noreferrer" className="block rounded-md px-3 py-2 text-xs text-slate-200 hover:bg-slate-800">
-            Google Maps
-          </a>
-          <a href={waze} target="_blank" rel="noreferrer" className="block rounded-md px-3 py-2 text-xs text-slate-200 hover:bg-slate-800">
-            Waze
-          </a>
-        </div>
-      )}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <a
+          href={apple}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-md border border-slate-700 bg-slate-800 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-700"
+        >
+          Apple Maps
+        </a>
+        <a
+          href={google}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-md border border-slate-700 bg-slate-800 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-700"
+        >
+          Google Maps
+        </a>
+        <a
+          href={waze}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-md border border-slate-700 bg-slate-800 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-700"
+        >
+          Waze
+        </a>
+      </div>
     </div>
   );
 }
