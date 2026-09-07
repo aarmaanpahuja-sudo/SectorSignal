@@ -55,6 +55,14 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [reportOpen, setReportOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+        if (params.get("signin") === "1" || params.get("signup") === "1") {
+      setAuthOpen(true);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "resolved">("active");
   const [selectedIncident, setSelectedIncident] = useState<ReturnType<typeof useWatchTowerData>["incidents"][number] | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
