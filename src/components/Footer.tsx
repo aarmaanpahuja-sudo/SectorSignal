@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="flex items-center justify-center gap-4">
 
           <p className="whitespace-nowrap">
-            © {new Date().getFullYear()} SectorSignal - v1.5.0
+            © {new Date().getFullYear()} SectorSignal - v1.6.12
           </p>
 
           {/* Social Icons */}
