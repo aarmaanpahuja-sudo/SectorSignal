@@ -40,7 +40,6 @@ const NAV: { id: View; label: string; icon: any }[] = [
   { id: "feed", label: "Feed", icon: Home },
   { id: "map", label: "Map", icon: MapIcon },
   { id: "zones", label: "Zones", icon: MapPin },
-  { id: "pickup", label: "Pickup", icon: Recycle },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "install", label: "Install", icon: Download },
   { id: "notifications", label: "Notifications", icon: Bell },
@@ -151,7 +150,7 @@ if (search.trim()) {
             </div>
 
             {/* Navigation links */}
-            <nav className="flex-1 space-y-1 px-3 py-4">
+                        <nav className="flex-1 space-y-1 px-3 py-4">
               {NAV.map((n) => {
                 const Icon = n.icon;
                 const active = view === n.id;
@@ -171,6 +170,19 @@ if (search.trim()) {
                   </button>
                 );
               })}
+              {data.profile?.is_admin && (
+                <button
+                  onClick={() => {
+                    setView("pickup");
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-all duration-200 ${
+                    view === "pickup" ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+                  }`}
+                >
+                  Pickup
+                </button>
+              )}
             </nav>
           </div>
         </div>
@@ -274,7 +286,7 @@ if (search.trim()) {
   {/* Title (when not on Feed) */}
   {view !== "feed" && (
     <h2 className="text-base font-semibold text-white md:text-lg">
-      {NAV.find((n) => n.id === view)?.label}
+      {view === "pickup" ? "Pickup" : NAV.find((n) => n.id === view)?.label}
     </h2>
   )}
 
