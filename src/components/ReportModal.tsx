@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { X, MapPin, Loader2, Check, Navigation } from "lucide-react";
-import { CATEGORY_LIST } from "../lib/categories";
-import type { IncidentCategory } from "../lib/supabase";
+import { CATEGORIES, SECURITY_CATEGORIES, VEHICLE_CATEGORIES, RECYCLING_CATEGORIES } from "../lib/categories";
+import type { IncidentCategory, RecyclingCategory } from "../lib/supabase";
+import { supabase } from "../lib/supabase";
+import { getOrCreateClientId } from "../lib/clientId";
 import { jitterAround, reverseGeocodeZip } from "../lib/geo";
 import MiniMap from "./MiniMap";
 
@@ -21,8 +23,14 @@ interface Props {
 }
 
 export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [section, setSection] = useState<"security" | "vehicle" | "recycling" | null>(null);
   const [category, setCategory] = useState<IncidentCategory | null>(null);
+  const [recycleCat, setRecycleCat] = useState<RecyclingCategory | null>(null);
+  const [quantity, setQuantity] = useState("");
+  const [pickupLocation, setPickupLocation] = useState("");
+  const [preferredAt, setPreferredAt] = useState("");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
@@ -32,8 +40,7 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  // Auto-fill zip from first watch zone when it becomes available (fixes race where
-  // modal opens before zones load from Supabase, leaving zip="" and validZip=false)
+
   useEffect(() => {
     if (zones.length > 0 && zip === "") {
       setZip(zones[0].zip_code);
@@ -48,7 +55,13 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
 
   const reset = () => {
     setStep(1);
+    setSection(null);
     setCategory(null);
+    setRecycleCat(null);
+    setQuantity("");
+    setPickupLocation("");
+    setPreferredAt("");
+    setPhotoFile(null);
     setTitle("");
     setDescription("");
     setLocation("");
@@ -89,17 +102,32 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
     );
   };
 
-  const submit = async () => {
-    if (!category) {
+    const submit = async () => {
+    const needsTitleDesc = category === "other_security" || category === "other_road" || recycleCat === "other_recyclables";
+    if (section !== "recycling" && !category) {
       setErr("Please choose a category.");
       return;
     }
-
+    if (section === "recycling" && !recycleCat) {
+      setErr("Please choose a category.");
+      return;
+    }
+    if (needsTitleDesc && !title.trim()) {
+      setErr("Title is required for this category.");
+      return;
+    }
+    if (needsTitleDesc && !description.trim()) {
+      setErr("Details are required for this category.");
+      return;
+    }
+    if (section === "recycling" && !description.trim()) {
+      setErr("Please describe the items for pickup.");
+      return;
+    }
     if (!zip || !validZip) {
       setErr("Please provide a valid 5-digit zip code.");
       return;
     }
-
     if (!coords) {
       setErr("Please capture your location before posting.");
       return;
@@ -107,15 +135,39 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
     setSubmitting(true);
     setErr(null);
     try {
-      let latLng = coords;
-      if (!latLng) {
-        latLng = jitterAround(zip, title.trim());
+      const latLng = coords;
+      if (section === "recycling") {
+        const { data: { user } } = await supabase.auth.getUser();
+        let photo_path: string | null = null;
+        if (photoFile) {
+          const path = `${user?.id || getOrCreateClientId()}/${Date.now()}-${photoFile.name}`;
+          const { error: upErr } = await supabase.storage.from("recycling-photos").upload(path, photoFile);
+          if (upErr) throw upErr;
+          photo_path = path;
+        }
+        const { error } = await supabase.from("recycling_requests").insert({
+          user_id: user?.id ?? null,
+          client_id: user ? null : getOrCreateClientId(),
+          category: recycleCat,
+          title: title.trim() || recycleCat,
+          description: description.trim(),
+          quantity: quantity.trim() || null,
+          pickup_location: pickupLocation.trim() || location.trim() || null,
+          preferred_at: preferredAt ? new Date(preferredAt).toISOString() : null,
+          photo_path,
+          zip_code: zip.trim(),
+          latitude: latLng[0],
+          longitude: latLng[1],
+        });
+        if (error) throw error;
+        close();
+        return;
       }
       await onSubmit({
-        category,
-        title: title.trim() || category,
-description: description.trim(),
-location_description: "",
+        category: category!,
+        title: title.trim() || CATEGORIES[category!].label,
+        description: description.trim(),
+        location_description: "",
         zip_code: zip.trim(),
         latitude: latLng[0],
         longitude: latLng[1],
@@ -138,8 +190,8 @@ location_description: "",
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-800 bg-slate-900/80 backdrop-blur-md px-6 py-4">
           <div>
             <h2 className="text-lg font-semibold text-white">File a Report</h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {step === 1 ? "Step 1 — What's happening?" : "Step 2 — Add details"}
+                        <p className="text-xs text-slate-400 mt-0.5">
+              {step === 1 ? "Step 1 — Choose a section" : step === 2 ? "Step 2 — Choose a category" : "Step 3 — Add details"}
             </p>
           </div>
           <button
@@ -151,40 +203,60 @@ location_description: "",
         </div>
 
         <div className="p-6">
-          {step === 1 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {CATEGORY_LIST.map((c) => {
-                const Icon = c.icon;
-                const active = category === c.id;
-                return (
-                  <button
-                    key={c.id}
-                    onClick={() => {
-  setCategory(c.id);
-  setStep(2);
-  requestGeo();
-}}
-                    className={`group flex flex-col items-start gap-3 rounded-xl border p-4 text-left transition-all duration-200 ${
-                      active
-                        ? "border-slate-600 bg-slate-800/80 " + c.glow
-                        : "border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-800/50"
-                    }`}
-                  >
-                    <span
-                      className={`flex h-10 w-10 items-center justify-center rounded-lg border ${c.badge}`}
-                    >
-                      <Icon size={20} />
-                    </span>
-                    <span className="text-sm font-medium text-slate-100 leading-tight">
-                      {c.label}
-                    </span>
-                  </button>
-                );
-              })}
+                    {step === 1 && (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {([
+                ["security", "Security", "Garage, packages, vandalism, pets"],
+                ["vehicle", "Vehicle & Road Safety", "Potholes, hazards, collisions"],
+                ["recycling", "Recycling & Pickup", "Private pickup request"],
+              ] as const).map(([id, label, hint]) => (
+                <button
+                  key={id}
+                  onClick={() => {
+                    setSection(id);
+                    setStep(2);
+                  }}
+                  className="rounded-xl border border-slate-800 bg-slate-900/40 p-4 text-left hover:border-slate-600"
+                >
+                  <div className="text-sm font-semibold text-white">{label}</div>
+                  <div className="mt-1 text-xs text-slate-500">{hint}</div>
+                </button>
+              ))}
             </div>
           )}
 
           {step === 2 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {(section === "recycling"
+                ? RECYCLING_CATEGORIES
+                : (section === "vehicle" ? VEHICLE_CATEGORIES : SECURITY_CATEGORIES).map((id) => CATEGORIES[id])
+              ).map((c) => {
+                const Icon = c.icon;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => {
+                      if (section === "recycling") setRecycleCat(c.id as RecyclingCategory);
+                      else setCategory(c.id as IncidentCategory);
+                      setStep(3);
+                      requestGeo();
+                    }}
+                    className="group flex flex-col items-start gap-3 rounded-xl border border-slate-800 bg-slate-900/40 p-4 text-left hover:border-slate-700"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 text-slate-200">
+                      <Icon size={20} />
+                    </span>
+                    <span className="text-sm font-medium text-slate-100 leading-tight">{c.label}</span>
+                  </button>
+                );
+              })}
+              <button onClick={() => setStep(1)} className="col-span-full text-xs text-slate-500 hover:text-white">
+                ← Back to sections
+              </button>
+            </div>
+          )}
+
+                    {step === 3 && (
             <div className="space-y-5">
               <div>
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400">
@@ -205,10 +277,38 @@ location_description: "",
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
-                  placeholder="Describe what you saw, any safety concerns, or what neighbors should know - OPTIONAL"
+                                    placeholder="Describe what you saw, any safety concerns, or what neighbors should know - OPTIONAL"
                   className="w-full resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all duration-200 focus:border-slate-500 focus:ring-2 focus:ring-slate-700/40"
                 />
               </div>
+              {section === "recycling" && (
+                <>
+                  <input
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    placeholder="Quantity (optional)"
+                    className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white"
+                  />
+                  <input
+                    value={pickupLocation}
+                    onChange={(e) => setPickupLocation(e.target.value)}
+                    placeholder="Pickup location (optional)"
+                    className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white"
+                  />
+                  <input
+                    type="datetime-local"
+                    value={preferredAt}
+                    onChange={(e) => setPreferredAt(e.target.value)}
+                    className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white"
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
+                    className="w-full text-xs text-slate-400"
+                  />
+                </>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
   <div>
     <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400">
@@ -301,22 +401,18 @@ location_description: "",
           )}
         </div>
 
-        <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-slate-800 bg-slate-900/80 backdrop-blur-md px-6 py-4">
-          {step === 1 ? (
+                <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-slate-800 bg-slate-900/80 backdrop-blur-md px-6 py-4">
+          {step !== 3 ? (
             <>
-              <span className="text-xs text-slate-500">Select a category to continue</span>
-              <button
-                disabled={!category}
-                onClick={() => setStep(2)}
-                className="rounded-lg bg-white px-5 py-2 text-sm font-medium text-slate-900 transition-all duration-200 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Continue
-              </button>
+              <span className="text-xs text-slate-500">
+                {step === 1 ? "Choose a section" : "Choose a category"}
+              </span>
+              <span className="text-xs text-slate-600"> </span>
             </>
           ) : (
             <>
               <button
-                onClick={() => setStep(1)}
+                onClick={() => setStep(2)}
                 className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 transition-all duration-200 hover:bg-slate-800"
               >
                 Back
