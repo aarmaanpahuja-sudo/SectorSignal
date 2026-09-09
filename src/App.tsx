@@ -21,6 +21,7 @@ import {
   X,
   Bell,
   MessageCircle,
+  Recycle,
 } from "lucide-react";
 import { useWatchTowerData } from "./lib/useWatchTowerData";
 import { useAuth } from "./lib/useAuth";
