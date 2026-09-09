@@ -32,13 +32,15 @@ import AuthModal from "./components/AuthModal";
 import InstallPage from "./components/InstallPage";
 import NotificationsPage from "./components/NotificationsPage";
 import ChatPage from "./components/ChatPage";
+import PickupPage from "./components/PickupPage";
 
-type View = "feed" | "map" | "zones" | "analytics" | "about" | "install" | "privacy" | "chat" | "notifications";
+type View = "feed" | "map" | "zones" | "analytics" | "about" | "install" | "privacy" | "chat" | "notifications" | "pickup";
 
 const NAV: { id: View; label: string; icon: any }[] = [
   { id: "feed", label: "Feed", icon: Home },
   { id: "map", label: "Map", icon: MapIcon },
   { id: "zones", label: "Zones", icon: MapPin },
+  { id: "pickup", label: "Pickup", icon: Recycle },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "install", label: "Install", icon: Download },
   { id: "notifications", label: "Notifications", icon: Bell },
@@ -388,7 +390,9 @@ if (search.trim()) {
   selectedIncident={selectedIncident}
 />
             </div>
-          ) : view === "zones" ? (
+          ) : view === "pickup" ? (
+  <PickupPage isAdmin={!!data.profile?.is_admin} />
+) : view === "zones" ? (
             <ZonesView
               zones={data.zones}
               karma={data.profile?.karma ?? 0}
