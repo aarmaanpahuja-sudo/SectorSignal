@@ -26,7 +26,62 @@ export type IncidentCategory =
   | "lost_pet"
   | "vandalism"
   | "suspicious_activity"
-  | "safe_walk";
+  | "safe_walk"
+  | "other_security"
+  | "pothole"
+  | "car_on_shoulder"
+  | "accident"
+  | "disabled_vehicle"
+  | "road_debris"
+  | "road_hazard"
+  | "construction"
+  | "road_closure"
+  | "traffic_signal"
+  | "broken_streetlight"
+  | "flooded_road"
+  | "icy_road"
+  | "fallen_tree"
+  | "obstruction"
+  | "wrong_way"
+  | "dangerous_driving"
+  | "pedestrian_hazard"
+  | "bike_lane"
+  | "railroad"
+  | "animal_on_road"
+  | "damaged_sign"
+  | "other_road";
+
+export type RecyclingCategory =
+  | "batteries"
+  | "glass"
+  | "old_electronics"
+  | "phones"
+  | "computers"
+  | "cables"
+  | "small_appliances"
+  | "printer_cartridges"
+  | "cardboard"
+  | "scrap_metal"
+  | "light_bulbs"
+  | "other_recyclables";
+
+export interface RecyclingRequest {
+  id: string;
+  user_id: string | null;
+  client_id: string | null;
+  category: string;
+  title: string | null;
+  description: string;
+  quantity: string | null;
+  pickup_location: string | null;
+  preferred_at: string | null;
+  photo_path: string | null;
+  zip_code: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  status: string;
+  created_at: string;
+}
 
 export type IncidentStatus = "active" | "resolved";
 
@@ -74,5 +129,6 @@ export interface Profile {
   user_id: string | null;
   display_name: string | null;
   karma: number;
+  is_admin?: boolean;
   created_at: string;
 }
