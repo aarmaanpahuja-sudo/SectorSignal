@@ -259,25 +259,43 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
                     {step === 3 && (
             <div className="space-y-5">
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400">
+                                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400">
                   Title
+                  {(category === "other_security" || category === "other_road" || recycleCat === "other_recyclables")
+                    ? " — REQUIRED"
+                    : " — optional"}
                 </label>
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Brief headline for the alert - OPTIONAL"
+                  placeholder={
+                    category === "other_security" || category === "other_road" || recycleCat === "other_recyclables"
+                      ? "Required title"
+                      : "Brief headline for the alert — optional"
+                  }
                   className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all duration-200 focus:border-slate-500 focus:ring-2 focus:ring-slate-700/40"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400">
+                                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400">
                   Details
+                  {(category === "other_security" ||
+                    category === "other_road" ||
+                    section === "recycling")
+                    ? " — REQUIRED"
+                    : " — optional"}
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
-                                    placeholder="Describe what you saw, any safety concerns, or what neighbors should know - OPTIONAL"
+                  placeholder={
+                    section === "recycling"
+                      ? "Describe the items for pickup — required"
+                      : category === "other_security" || category === "other_road"
+                      ? "Describe what happened — required"
+                      : "Describe what you saw — optional"
+                  }
                   className="w-full resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all duration-200 focus:border-slate-500 focus:ring-2 focus:ring-slate-700/40"
                 />
               </div>
