@@ -84,7 +84,7 @@ export interface RecyclingRequest {
   created_at: string;
 }
 
-export type IncidentStatus = "active" | "resolved" | "closed";
+export type IncidentStatus = "active" | "resolved";
 
 export interface Incident {
   id: string;
@@ -132,6 +132,4 @@ export interface Profile {
   karma: number;
   is_admin?: boolean;
   created_at: string;
-  closes_at: string | null;
-  resolves_at: string | null;
 }
