@@ -49,7 +49,8 @@ export type IncidentCategory =
   | "railroad"
   | "animal_on_road"
   | "damaged_sign"
-  | "other_road";
+  | "other_road"
+  | "traffic";
 
 export type RecyclingCategory =
   | "batteries"
