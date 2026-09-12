@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase, type Incident, type Comment, type WatchZone, type Profile } from "./supabase";
 import { getOrCreateClientId } from "./clientId";
-import { isSecurity, isVehicle, SECURITY_CLOSE_MS, vehicleResolveMs } from "./incidentRules";
 
 export interface DataState {
   incidents: Incident[];
@@ -41,23 +40,13 @@ export function useWatchTowerData(userId: string | null) {
         zoneQuery,
         profileQuery,
       ]);
+
       if (cancelled) return;
       if (inc.error || com.error || zn.error) {
         setError(inc.error?.message || com.error?.message || zn.error?.message || "Load failed");
       }
-      const now = Date.now();
-for (const inc of inc.data || []) {
-  if (inc.status === "active" && inc.closes_at && new Date(inc.closes_at).getTime() < now) {
-    await supabase.from("incidents").update({ status: "closed" }).eq("id", inc.id);
-    inc.status = "closed";
-  }
-  if (inc.status === "active" && inc.resolves_at && new Date(inc.resolves_at).getTime() < now) {
-    await supabase.from("incidents").update({ status: "resolved" }).eq("id", inc.id);
-    inc.status = "resolved";
-  }
-}
 
-setIncidents((inc.data as Incident[]) || []);
+      setIncidents((inc.data as Incident[]) || []);
       setComments((com.data as Comment[]) || []);
       setZones((zn.data as WatchZone[]) || []);
       setProfile((pf.data as Profile) || null);
@@ -67,7 +56,6 @@ setIncidents((inc.data as Incident[]) || []);
       cancelled = true;
     };
   }, [clientId, userId]);
-
 
   useEffect(() => {
     const incChannel = supabase
@@ -126,21 +114,15 @@ setIncidents((inc.data as Incident[]) || []);
   }, []);
 
   // Actions
-          const addIncident = useCallback(
+  const addIncident = useCallback(
     async (input: Omit<Incident, "id" | "created_at" | "updated_at" | "status" | "verifications" | "reporter_id" | "user_id">) => {
-            const { data: authData } = await supabase.auth.getUser();
+      const { data: authData } = await supabase.auth.getUser();
       const row: Record<string, unknown> = {
-  ...input,
-  reporter_id: clientId,
-  author_name: profile?.display_name || "Neighbor",
-  author_email: authData.user?.email ?? null,
-  closes_at: isSecurity(input.category)
-    ? new Date(Date.now() + SECURITY_CLOSE_MS).toISOString()
-    : null,
-  resolves_at: isVehicle(input.category)
-    ? new Date(Date.now() + vehicleResolveMs(input.category)).toISOString()
-    : null,
-};
+        ...input,
+        reporter_id: clientId,
+        author_name: profile?.display_name || "Neighbor",
+        author_email: authData.user?.email ?? null,
+      };
       if (userId) row.user_id = userId;
 
       const { data: insertedIncident, error } = await supabase
@@ -151,7 +133,6 @@ setIncidents((inc.data as Incident[]) || []);
 
       if (error) throw error;
 
-            
       setIncidents((prev) => {
         const filtered = prev.filter((i) => i.id !== insertedIncident.id);
         return [insertedIncident as Incident, ...filtered];
@@ -161,7 +142,6 @@ setIncidents((inc.data as Incident[]) || []);
       await supabase.rpc("bump_karma", { p_client: clientId, p_user: userId ?? null });
       setProfile((prev) => (prev ? { ...prev, karma: prev.karma + 10 } : prev));
 
-      
       try {
         const { data: { session } } = await supabase.auth.getSession();
         await fetch(
@@ -185,10 +165,10 @@ setIncidents((inc.data as Incident[]) || []);
 
       return insertedIncident as Incident;
     },
-        [clientId, userId, profile?.display_name]
+    [clientId, userId, profile?.display_name]
   );
 
-    const resolveIncident = useCallback(async (id: string) => {
+  const resolveIncident = useCallback(async (id: string) => {
     setIncidents((prev) =>
       prev.map((i) => (i.id === id ? { ...i, status: "resolved" } : i))
     );
@@ -224,13 +204,13 @@ setIncidents((inc.data as Incident[]) || []);
     }
   }, []);
 
-    const verifyIncident = useCallback(async (id: string) => {
+  const verifyIncident = useCallback(async (id: string) => {
     const { data, error } = await supabase.rpc("toggle_verification", {
       p_id: id,
       p_client: clientId,
       p_user: userId ?? null,
     });
-        if (error) throw error;
+    if (error) throw error;
     const newCount = data as number;
     setIncidents((prev) =>
       prev.map((i) => (i.id === id ? { ...i, verifications: newCount } : i))
@@ -264,7 +244,7 @@ setIncidents((inc.data as Incident[]) || []);
         author_id: clientId,
       };
       if (userId) row.user_id = userId;
-            const { data, error } = await supabase
+      const { data, error } = await supabase
         .from("comments")
         .insert(row)
         .select("*")
