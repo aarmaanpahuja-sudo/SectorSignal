@@ -25,6 +25,7 @@ export default function ChatPage({ initialUserId }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [text, setText] = useState("");
+  const threadRef = useRef<HTMLDivElement>(null);
   const [emailInput, setEmailInput] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const preferredOtherId = useRef<string | null>(initialUserId ?? null);
@@ -160,6 +161,9 @@ export default function ChatPage({ initialUserId }: Props) {
       supabase.removeChannel(channel);
     };
   }, [activeId]);
+    useEffect(() => {
+    threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight });
+  }, [messages, activeId]);
 
   const notifyOther = async (conversationId: string) => {
     const convo = convos.find((c) => c.id === conversationId);
@@ -242,8 +246,11 @@ export default function ChatPage({ initialUserId }: Props) {
           </button>
         ))}
       </aside>
-      <section className="flex min-w-0 flex-1 flex-col">
-        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
+            <section className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <div
+          ref={threadRef}
+          className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4"
+        >
           {messages.map((m) => (
             <div
               key={m.id}
