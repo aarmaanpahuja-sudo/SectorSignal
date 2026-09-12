@@ -31,6 +31,10 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
   const [pickupLocation, setPickupLocation] = useState("");
   const [preferredAt, setPreferredAt] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [recycleDone, setRecycleDone] = useState(false);
+  const [zipLocked, setZipLocked] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
@@ -89,8 +93,7 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
         setCoords([lat, lng]);
         setGeoStatus("ok");
 
-        const detectedZip = await reverseGeocodeZip(lat, lng);
-        if (detectedZip) {
+        if (detectedZip && !zipLocked) {
           setZip(detectedZip);
           setErr(null);
         }
@@ -128,7 +131,11 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
       setErr("Please provide a valid 5-digit zip code.");
       return;
     }
-    if (!coords) {
+        if (section === "recycling" && (!phone.trim() || !address.trim())) {
+      setErr("Phone number and pickup address are required.");
+      return;
+    }
+    if (section !== "recycling" && !coords) {
       setErr("Please capture your location before posting.");
       return;
     }
@@ -152,7 +159,8 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
           title: title.trim() || recycleCat,
           description: description.trim(),
           quantity: quantity.trim() || null,
-          pickup_location: pickupLocation.trim() || location.trim() || null,
+          pickup_location: address.trim(),
+          phone: phone.trim(),
           preferred_at: preferredAt ? new Date(preferredAt).toISOString() : null,
           photo_path,
           zip_code: zip.trim(),
@@ -160,7 +168,7 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
           longitude: latLng[1],
         });
         if (error) throw error;
-        close();
+        setRecycleDone(true);
         return;
       }
       await onSubmit({
@@ -202,8 +210,19 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
           </button>
         </div>
 
-        <div className="p-6">
-                    {step === 1 && (
+                <div className="p-6">
+          {recycleDone && (
+            <div className="space-y-3 text-sm text-slate-300">
+              <p>
+                Thank you for scheduling a recycling pickup. A member of our team will contact you shortly with this email:{" "}
+                <strong className="text-white">sectorsignal339@gmail.com</strong>. We will ask you to confirm your scheduled pickup time or schedule a new pickup time according to our availability.
+              </p>
+              <button onClick={close} className="rounded-lg bg-white px-4 py-2 text-slate-900">
+                Done
+              </button>
+            </div>
+          )}
+          {!recycleDone && step === 1 && (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {([
                 ["security", "Security", "Garage, packages, vandalism, pets"],
@@ -225,7 +244,7 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
             </div>
           )}
 
-          {step === 2 && (
+          {!recycleDone && step === 2 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {(section === "recycling"
                 ? RECYCLING_CATEGORIES
@@ -236,14 +255,18 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
                   <button
                     key={c.id}
                     onClick={() => {
-                      if (section === "recycling") setRecycleCat(c.id as RecyclingCategory);
-                      else setCategory(c.id as IncidentCategory);
-                      setStep(3);
-                      requestGeo();
+                                            if (section === "recycling") {
+                        setRecycleCat(c.id as RecyclingCategory);
+                        setStep(3);
+                      } else {
+                        setCategory(c.id as IncidentCategory);
+                        setStep(3);
+                        requestGeo();
+                      }
                     }}
                     className="group flex flex-col items-start gap-3 rounded-xl border border-slate-800 bg-slate-900/40 p-4 text-left hover:border-slate-700"
                   >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 text-slate-200">
+                                        <span className={`flex h-10 w-10 items-center justify-center rounded-lg border ${"badge" in c ? c.badge : "border-slate-700 bg-slate-800 text-slate-200"}`}>
                       <Icon size={20} />
                     </span>
                     <span className="text-sm font-medium text-slate-100 leading-tight">{c.label}</span>
@@ -256,7 +279,7 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
             </div>
           )}
 
-                    {step === 3 && (
+                    {!recycleDone && step === 3 && (
             <div className="space-y-5">
               <div>
                                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400">
@@ -302,6 +325,18 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
               {section === "recycling" && (
                 <>
                   <input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Phone number — REQUIRED"
+                    className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white"
+                  />
+                  <input
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Pickup address — REQUIRED"
+                    className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white"
+                  />
+                  <input
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
                     placeholder="Quantity (optional)"
@@ -337,8 +372,7 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
                       value={zip}
                       onChange={(e) => {
                         setZip(e.target.value);
-                        setCoords(null);
-                        setGeoStatus("idle");
+                        setZipLocked(true);
                       }}
                       className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white outline-none transition-all duration-200 focus:border-slate-500"
                     >
@@ -392,23 +426,24 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
                   </button>
                 </div>
               </div>
-              {geoStatus === "ok" && coords && (
+              {section !== "recycling" && geoStatus === "ok" && coords && (
   <>
     <p className="flex items-center gap-1.5 text-xs text-emerald-400/80">
       <MapPin size={12} />
       Pin set to {coords[0].toFixed(4)}, {coords[1].toFixed(4)}
     </p>
 
-            <MiniMap
+  <MiniMap
       lat={coords[0]}
       lng={coords[1]}
       color="#22c55e"
       draggable
       onMove={(lat, lng) => setCoords([lat, lng])}
     />
+    <p className="text-xs text-slate-500">Drag the pin to update its location</p>
   </>
 )}
-              {geoStatus === "denied" && (
+              {section !== "recycling" && geoStatus === "denied" && (
                 <p className="flex items-center gap-1.5 text-xs text-slate-500">
                   <MapPin size={12} />
                   Location permission is required to post.
@@ -419,7 +454,8 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
           )}
         </div>
 
-                <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-slate-800 bg-slate-900/80 backdrop-blur-md px-6 py-4">
+                        {!recycleDone && (
+        <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-slate-800 bg-slate-900/80 backdrop-blur-md px-6 py-4">
           {step !== 3 ? (
             <>
               <span className="text-xs text-slate-500">
@@ -445,6 +481,8 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
             </>
           )}
         </div>
+              </div>
+        )}
       </div>
     </div>
   );
