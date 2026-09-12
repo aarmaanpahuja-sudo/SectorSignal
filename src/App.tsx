@@ -65,7 +65,7 @@ export default function App() {
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "resolved">("active");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "resolved" | "closed">("active");
   const [selectedIncident, setSelectedIncident] = useState<ReturnType<typeof useWatchTowerData>["incidents"][number] | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [chatWithUserId, setChatWithUserId] = useState<string | null>(null);
@@ -685,8 +685,8 @@ function FeedView({
 }: {
   incidents: ReturnType<typeof useWatchTowerData>["incidents"];
   comments: ReturnType<typeof useWatchTowerData>["comments"];
-  statusFilter: "all" | "active" | "resolved";
-  setStatusFilter: (s: "all" | "active" | "resolved") => void;
+    statusFilter: "all" | "active" | "resolved" | "closed";
+  setStatusFilter: (s: "all" | "active" | "resolved" | "closed") => void;
   onResolve: ReturnType<typeof useWatchTowerData>["resolveIncident"];
   onUnresolve: ReturnType<typeof useWatchTowerData>["unresolveIncident"];
   onVerify: ReturnType<typeof useWatchTowerData>["verifyIncident"];
@@ -695,8 +695,9 @@ function FeedView({
     onOpenMap: (incident: ReturnType<typeof useWatchTowerData>["incidents"][number]) => void;
   onMessagePoster: (incident: ReturnType<typeof useWatchTowerData>["incidents"][number]) => void;
 }) {
-  const tabs: { id: "active" | "resolved" | "all"; label: string }[] = [
+   const tabs: { id: "active" | "resolved" | "closed" | "all"; label: string }[] = [
     { id: "active", label: "Active" },
+    { id: "closed", label: "Closed" },
     { id: "resolved", label: "Resolved" },
     { id: "all", label: "All" },
   ];
