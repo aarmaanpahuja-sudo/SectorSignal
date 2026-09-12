@@ -203,7 +203,7 @@ if (search.trim()) {
   </div>
 </div>
 
-        <nav className="flex-1 space-y-1 px-3 py-2">
+                <nav className="flex-1 space-y-1 px-3 py-2">
           {NAV.map((n) => {
             const Icon = n.icon;
             const active = view === n.id;
@@ -220,6 +220,17 @@ if (search.trim()) {
               </button>
             );
           })}
+          {data.profile?.is_admin && (
+            <button
+              onClick={() => setView("pickup")}
+              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                view === "pickup" ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+              }`}
+            >
+              <Recycle size={18} />
+              Pickup
+            </button>
+          )}
         </nav>
 
         <div className="border-t border-slate-800 p-3">
