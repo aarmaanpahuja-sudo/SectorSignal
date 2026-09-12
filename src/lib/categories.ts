@@ -104,6 +104,7 @@ export const CATEGORIES: Record<IncidentCategory, CategoryMeta> = {
   animal_on_road: { id: "animal_on_road", label: "Animal on Road", icon: Rabbit, ...amber },
   damaged_sign: { id: "damaged_sign", label: "Missing / Damaged Road Sign", icon: Signpost, ...slate },
   other_road: { id: "other_road", label: "Other Road Issue", icon: HelpCircle, ...slate },
+  traffic: { id: "traffic", label: "Traffic", icon: Car, ...amber },
 };
 
 export const CATEGORY_LIST = Object.values(CATEGORIES);
@@ -118,6 +119,7 @@ export const SECURITY_CATEGORIES: IncidentCategory[] = [
 ];
 
 export const VEHICLE_CATEGORIES: IncidentCategory[] = [
+  "traffic",
   "pothole",
   "car_on_shoulder",
   "accident",
