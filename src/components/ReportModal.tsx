@@ -66,6 +66,10 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
     setPickupLocation("");
     setPreferredAt("");
     setPhotoFile(null);
+    setPhone("");
+    setAddress("");
+    setRecycleDone(false);
+    setZipLocked(false);
     setTitle("");
     setDescription("");
     setLocation("");
@@ -90,9 +94,9 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
       async (pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
-        setCoords([lat, lng]);
+                setCoords([lat, lng]);
         setGeoStatus("ok");
-
+        const detectedZip = await reverseGeocodeZip(lat, lng);
         if (detectedZip && !zipLocked) {
           setZip(detectedZip);
           setErr(null);
@@ -164,8 +168,8 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
           preferred_at: preferredAt ? new Date(preferredAt).toISOString() : null,
           photo_path,
           zip_code: zip.trim(),
-          latitude: latLng[0],
-          longitude: latLng[1],
+          latitude: null,
+          longitude: null,
         });
         if (error) throw error;
         setRecycleDone(true);
@@ -391,8 +395,7 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
   value={zip}
   onChange={(e) => {
     setZip(e.target.value.replace(/\D/g, "").slice(0, 5));
-    setCoords(null);
-    setGeoStatus("idle");
+    setZipLocked(true);
     setErr(null);
   }}
   placeholder="Enter 5-digit zip"
@@ -481,7 +484,7 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
             </>
           )}
         </div>
-              </div>
+                      </div>
         )}
       </div>
     </div>
