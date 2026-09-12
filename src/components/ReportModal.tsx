@@ -483,8 +483,7 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
               </button>
             </>
           )}
-        </div>
-                      </div>
+                </div>
         )}
       </div>
     </div>
