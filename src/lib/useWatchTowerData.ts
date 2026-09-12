@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase, type Incident, type Comment, type WatchZone, type Profile } from "./supabase";
 import { getOrCreateClientId } from "./clientId";
+import { isSecurity, isVehicle, SECURITY_CLOSE_MS, vehicleResolveMs } from "./incidentRules";
 
 export interface DataState {
   incidents: Incident[];
@@ -44,7 +45,19 @@ export function useWatchTowerData(userId: string | null) {
       if (inc.error || com.error || zn.error) {
         setError(inc.error?.message || com.error?.message || zn.error?.message || "Load failed");
       }
-      setIncidents((inc.data as Incident[]) || []);
+      const now = Date.now();
+for (const inc of inc.data || []) {
+  if (inc.status === "active" && inc.closes_at && new Date(inc.closes_at).getTime() < now) {
+    await supabase.from("incidents").update({ status: "closed" }).eq("id", inc.id);
+    inc.status = "closed";
+  }
+  if (inc.status === "active" && inc.resolves_at && new Date(inc.resolves_at).getTime() < now) {
+    await supabase.from("incidents").update({ status: "resolved" }).eq("id", inc.id);
+    inc.status = "resolved";
+  }
+}
+
+setIncidents((inc.data as Incident[]) || []);
       setComments((com.data as Comment[]) || []);
       setZones((zn.data as WatchZone[]) || []);
       setProfile((pf.data as Profile) || null);
@@ -117,11 +130,17 @@ export function useWatchTowerData(userId: string | null) {
     async (input: Omit<Incident, "id" | "created_at" | "updated_at" | "status" | "verifications" | "reporter_id" | "user_id">) => {
             const { data: authData } = await supabase.auth.getUser();
       const row: Record<string, unknown> = {
-        ...input,
-        reporter_id: clientId,
-        author_name: profile?.display_name || "Neighbor",
-        author_email: authData.user?.email ?? null,
-      };
+  ...input,
+  reporter_id: clientId,
+  author_name: profile?.display_name || "Neighbor",
+  author_email: authData.user?.email ?? null,
+  closes_at: isSecurity(input.category)
+    ? new Date(Date.now() + SECURITY_CLOSE_MS).toISOString()
+    : null,
+  resolves_at: isVehicle(input.category)
+    ? new Date(Date.now() + vehicleResolveMs(input.category)).toISOString()
+    : null,
+};
       if (userId) row.user_id = userId;
 
       const { data: insertedIncident, error } = await supabase
