@@ -145,6 +145,13 @@ export default function MapView({ incidents, activeZip, onResolve, selectedIncid
         existing.setPopupContent(popupHtml(inc));
       } else {
         const marker = L.marker([inc.latitude, inc.longitude], { icon }).addTo(map);
+                if (inc.area_type === "circle" && inc.radius_m) {
+          L.circle([inc.latitude, inc.longitude], {
+            radius: inc.radius_m,
+            color: meta.pinColor,
+            fillOpacity: 0.12,
+          }).addTo(map);
+        }
         marker.bindPopup(popupHtml(inc));
 
         marker.on("popupopen", (e) => {
