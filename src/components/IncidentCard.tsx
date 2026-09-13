@@ -22,7 +22,7 @@ interface Props {
   resolveVotes: Record<string, number>;
 }
 
-export default function IncidentCard({ incident, comments, onResolve, onVerify, onComment, authorName, onOpenMap, onMessagePoster, onUnresolve }: Props) {
+export default function IncidentCard({ incident, comments, onResolve, onVerify, onComment, authorName, onOpenMap, onMessagePoster, onUnresolve, resolveVotes }: Props) {
   const meta = CATEGORIES[incident.category];
   const Icon = meta.icon;
   const shown = displayStatus(incident);
