@@ -8,7 +8,8 @@ interface Props {
   label?: string;
 
   draggable?: boolean;
-  onMove?: (lat: number, lng: number) => void;
+    onMove?: (lat: number, lng: number) => void;
+  radiusM?: number | null;
 }
 
 export default function MiniMap({
@@ -18,6 +19,7 @@ export default function MiniMap({
   label,
   draggable = false,
   onMove,
+  radiusM,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -56,6 +58,10 @@ const markerRef = useRef<L.Marker | null>(null);
 }).addTo(map);
 
 markerRef.current = marker;
+
+if (radiusM && radiusM > 0) {
+      L.circle([lat, lng], { radius: radiusM, color, fillOpacity: 0.15 }).addTo(map);
+    }
 
 if (draggable && onMove) {
   marker.on("dragend", () => {
