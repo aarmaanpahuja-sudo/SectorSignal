@@ -185,7 +185,9 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
         zip_code: zip.trim(),
         latitude: latLng[0],
         longitude: latLng[1],
-      });
+        area_type: areaType,
+        radius_m: areaType === "circle" ? radiusM : null,
+      } as any);
       close();
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Failed to submit report");
@@ -445,7 +447,17 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
       draggable
       onMove={(lat, lng) => setCoords([lat, lng])}
     />
-    <p className="text-xs text-slate-500">Drag the pin to update its location</p>
+    <div className="flex gap-2">
+      <button type="button" onClick={() => setAreaType("pin")} className={`rounded-lg border px-3 py-1.5 text-xs ${areaType === "pin" ? "bg-white text-slate-900" : "border-slate-700 text-slate-300"}`}>Pin</button>
+      <button type="button" onClick={() => setAreaType("circle")} className={`rounded-lg border px-3 py-1.5 text-xs ${areaType === "circle" ? "bg-white text-slate-900" : "border-slate-700 text-slate-300"}`}>Circle</button>
+    </div>
+    {areaType === "circle" && (
+      <label className="block text-xs text-slate-400">
+        Radius: {radiusM} m
+        <input type="range" min={20} max={400} value={radiusM} onChange={(e) => setRadiusM(Number(e.target.value))} className="w-full" />
+      </label>
+    )}
+    <p className="text-xs text-slate-500">Drag the pin to update its location. Circle is centered on the pin.</p>
   </>
 )}
               {section !== "recycling" && geoStatus === "denied" && (
