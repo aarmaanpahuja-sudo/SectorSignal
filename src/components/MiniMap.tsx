@@ -9,7 +9,8 @@ interface Props {
 
   draggable?: boolean;
     onMove?: (lat: number, lng: number) => void;
-  radiusM?: number | null;
+    radiusM?: number | null;
+  hidePin?: boolean;
 }
 
 export default function MiniMap({
@@ -20,6 +21,7 @@ export default function MiniMap({
   draggable = false,
   onMove,
   radiusM,
+  hidePin = false,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -59,10 +61,6 @@ const markerRef = useRef<L.Marker | null>(null);
 
 markerRef.current = marker;
 
-if (radiusM && radiusM > 0) {
-      L.circle([lat, lng], { radius: radiusM, color, fillOpacity: 0.15 }).addTo(map);
-    }
-
 if (draggable && onMove) {
   marker.on("dragend", () => {
     const pos = marker.getLatLng();
@@ -89,6 +87,23 @@ if (draggable && onMove) {
   markerRef.current.setLatLng([lat, lng]);
   mapRef.current.panTo([lat, lng], { animate: false });
 }, [lat, lng]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const existing = (map as any)._ssCircle as L.Circle | undefined;
+    if (existing) {
+      map.removeLayer(existing);
+      (map as any)._ssCircle = null;
+    }
+    if (radiusM && radiusM > 0) {
+      (map as any)._ssCircle = L.circle([lat, lng], { radius: radiusM, color, fillOpacity: 0.15 }).addTo(map);
+    }
+    if (markerRef.current) {
+      if (hidePin) markerRef.current.remove();
+      else markerRef.current.addTo(map);
+    }
+  }, [radiusM, hidePin, lat, lng, color]);
   
   return (
     <div
