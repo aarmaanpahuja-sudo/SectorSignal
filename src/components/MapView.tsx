@@ -144,15 +144,24 @@ export default function MapView({ incidents, activeZip, onResolve, selectedIncid
         existing.setLatLng([inc.latitude, inc.longitude]);
         existing.setPopupContent(popupHtml(inc));
       } else {
-        const marker = L.marker([inc.latitude, inc.longitude], { icon }).addTo(map);
                 if (inc.area_type === "circle" && inc.radius_m) {
-          L.circle([inc.latitude, inc.longitude], {
+          const circle = L.circle([inc.latitude, inc.longitude], {
             radius: inc.radius_m,
             color: meta.pinColor,
             fillOpacity: 0.12,
           }).addTo(map);
+          circle.bindPopup(popupHtml(inc));
+        } else {
+          const marker = L.marker([inc.latitude, inc.longitude], { icon }).addTo(map);
+          marker.bindPopup(popupHtml(inc));
+          marker.on("popupopen", (e) => {
+            const root = (e.popup.getElement() as HTMLElement)?.querySelector("[data-resolve]");
+            root?.addEventListener("click", async () => {
+              await onResolve(inc.id);
+            });
+          });
+          markersRef.current[inc.id] = marker;
         }
-        marker.bindPopup(popupHtml(inc));
 
         marker.on("popupopen", (e) => {
           const root = (e.popup.getElement() as HTMLElement)?.querySelector("[data-resolve]");
