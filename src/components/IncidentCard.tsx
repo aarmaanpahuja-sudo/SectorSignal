@@ -4,6 +4,7 @@ import { CATEGORIES } from "../lib/categories";
 import type { Incident, Comment } from "../lib/supabase";
 import { timeAgo } from "../lib/geo";
 import MiniMap from "./MiniMap";
+import { displayStatus, formatRemain, isSecurity, isVehicle, votesNeeded } from "../lib/incidentRules";
 
 interface Props {
   incident: Incident;
@@ -12,15 +13,25 @@ interface Props {
   onUnresolve: (id: string) => Promise<void>;
   onVerify: (id: string) => Promise<void>;
   onComment: (incidentId: string, body: string, authorName: string) => Promise<unknown>;
-    authorName: string;
+  authorName: string;
   onOpenMap: (incident: Incident) => void;
   onMessagePoster?: (incident: Incident) => void;
+  onVoteResolve: (id: string, category: string) => Promise<void>;
+  onExtendClose: (id: string, current: string | null | undefined) => Promise<void>;
+  onExtendResolve: (id: string, current: string | null | undefined) => Promise<void>;
+  resolveVotes: Record<string, number>;
 }
 
 export default function IncidentCard({ incident, comments, onResolve, onVerify, onComment, authorName, onOpenMap, onMessagePoster, onUnresolve }: Props) {
   const meta = CATEGORIES[incident.category];
   const Icon = meta.icon;
-  const resolved = incident.status === "resolved";
+  const shown = displayStatus(incident);
+  const resolved = shown === "resolved";
+  const closed = shown === "closed";
+  const votes = resolveVotes[incident.id] || 0;
+  const need = votesNeeded(incident.category);
+  const closeMs = incident.closes_at ? new Date(incident.closes_at).getTime() - Date.now() : 0;
+  const resolveMs = incident.resolves_at ? new Date(incident.resolves_at).getTime() - Date.now() : 0;
   const incidentComments = comments.filter((c) => c.incident_id === incident.id);
 
   const [showComments, setShowComments] = useState(false);
@@ -76,15 +87,28 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
               <span className="rounded-full border border-slate-700 bg-slate-800/50 px-2.5 py-0.5 text-[11px] font-medium text-slate-300">
                 {incident.zip_code}
               </span>
-              {resolved ? (
+                            {resolved ? (
                 <span className="flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-medium text-emerald-300">
                   <ShieldCheck size={11} /> Resolved
+                </span>
+              ) : closed ? (
+                <span className="rounded-full border border-slate-600 px-2.5 py-0.5 text-[11px] text-slate-300">
+                  Closed
                 </span>
               ) : (
                 <span className="flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-0.5 text-[11px] font-medium text-red-300">
                   <span className="h-1.5 w-1.5 rounded-full bg-red-400 wt-pulse" />
                   Active
                 </span>
+              )}
+              {isSecurity(incident.category) && shown === "active" && closeMs > 0 && closeMs < 2 * 24 * 60 * 60 * 1000 && (
+                <span className="text-[11px] text-amber-300">Closing in {formatRemain(closeMs)}</span>
+              )}
+              {isVehicle(incident.category) && shown === "active" && resolveMs > 0 && (
+                <span className="text-[11px] text-sky-300">Resolving in {formatRemain(resolveMs)}</span>
+              )}
+              {!resolved && (
+                <span className="text-[11px] text-slate-400">{votes}/{need} people resolved</span>
               )}
               <span className="ml-auto text-xs text-slate-500">{timeAgo(incident.created_at)}</span>
             </div>
@@ -143,9 +167,39 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
               Message privately
             </button>
           )}
-                    {!resolved ? (
+                              {!resolved && (
             <button
-              onClick={() => onResolve(incident.id)}
+              onClick={() => onVoteResolve(incident.id, incident.category)}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-emerald-600/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300"
+            >
+              <Check size={13} />
+              Resolve
+            </button>
+          )}
+          {resolved && (
+            <button
+              onClick={() => onUnresolve(incident.id)}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-amber-600/40 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-300"
+            >
+              Un-Resolve
+            </button>
+          )}
+          {isSecurity(incident.category) && shown !== "resolved" && (
+            <button
+              onClick={() => onExtendClose(incident.id, incident.closes_at)}
+              className="flex shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300"
+            >
+              Don’t close
+            </button>
+          )}
+          {isVehicle(incident.category) && shown !== "resolved" && (
+            <button
+              onClick={() => onExtendResolve(incident.id, incident.resolves_at)}
+              className="flex shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300"
+            >
+              Don’t resolve
+            </button>
+          )}
               className="flex shrink-0 items-center gap-1.5 rounded-lg border border-emerald-600/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300 transition-all duration-200 hover:bg-emerald-500/20"
             >
               <Check size={13} />
@@ -164,7 +218,7 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
         {hasCoords && (
           <div className="mt-3 border-t border-slate-800 pt-3">
               <CoordLinks lat={incident.latitude!} lng={incident.longitude!} />
-            <MiniMap lat={incident.latitude!} lng={incident.longitude!} color={meta.pinColor} label={incident.title} />
+            <MiniMap lat={incident.latitude!} lng={incident.longitude!} color={meta.pinColor} label={incident.title} radiusM={incident.area_type === "circle" ? incident.radius_m : null} />
           </div>
         )}
 
