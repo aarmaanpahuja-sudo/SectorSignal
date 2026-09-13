@@ -36,7 +36,7 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
   const [recycleDone, setRecycleDone] = useState(false);
   const [zipLocked, setZipLocked] = useState(false);
   const [areaType, setAreaType] = useState<"pin" | "circle">("pin");
-  const [radiusM, setRadiusM] = useState(50);
+  const [radiusMi, setRadiusMi] = useState(0.25);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
@@ -186,7 +186,7 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
         latitude: latLng[0],
         longitude: latLng[1],
         area_type: areaType,
-        radius_m: areaType === "circle" ? radiusM : null,
+        radius_m: areaType === "circle" ? Math.round(radiusMi * 1609.34) : null,
       } as any);
       close();
     } catch (e) {
@@ -440,12 +440,14 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
       Pin set to {coords[0].toFixed(4)}, {coords[1].toFixed(4)}
     </p>
 
-  <MiniMap
+    <MiniMap
       lat={coords[0]}
       lng={coords[1]}
       color="#22c55e"
-      draggable
+      draggable={areaType === "pin"}
       onMove={(lat, lng) => setCoords([lat, lng])}
+      radiusM={areaType === "circle" ? radiusMi * 1609.34 : null}
+      hidePin={areaType === "circle"}
     />
     <div className="flex gap-2">
       <button type="button" onClick={() => setAreaType("pin")} className={`rounded-lg border px-3 py-1.5 text-xs ${areaType === "pin" ? "bg-white text-slate-900" : "border-slate-700 text-slate-300"}`}>Pin</button>
@@ -453,11 +455,13 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
     </div>
     {areaType === "circle" && (
       <label className="block text-xs text-slate-400">
-        Radius: {radiusM} m
-        <input type="range" min={20} max={400} value={radiusM} onChange={(e) => setRadiusM(Number(e.target.value))} className="w-full" />
+        Radius: {radiusMi.toFixed(2)} mi
+        <input type="range" min={0} max={2} step={0.05} value={radiusMi} onChange={(e) => setRadiusMi(Number(e.target.value))} className="w-full" />
       </label>
     )}
-    <p className="text-xs text-slate-500">Drag the pin to update its location. Circle is centered on the pin.</p>
+    <p className="text-xs text-slate-500">
+      {areaType === "circle" ? "Circle is centered on your GPS point." : "Drag the pin to update its location"}
+    </p>
   </>
 )}
               {section !== "recycling" && geoStatus === "denied" && (
