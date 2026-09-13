@@ -17,12 +17,12 @@ interface Props {
   onOpenMap: (incident: Incident) => void;
   onMessagePoster?: (incident: Incident) => void;
   onVoteResolve: (id: string, category: string) => Promise<void>;
-  onExtendClose: (id: string, current: string | null | undefined) => Promise<void>;
-  onExtendResolve: (id: string, current: string | null | undefined) => Promise<void>;
+  onExtendClose: (id: string, current: string | null | undefined, ms: number) => Promise<void>;
+  onExtendResolve: (id: string, current: string | null | undefined, ms: number) => Promise<void>;
   resolveVotes: Record<string, number>;
 }
 
-export default function IncidentCard({ incident, comments, onResolve, onVerify, onComment, authorName, onOpenMap, onMessagePoster, onUnresolve, resolveVotes }: Props) {
+export default function IncidentCard({ incident, comments, onResolve, onVerify, onComment, authorName, onOpenMap, onMessagePoster, onUnresolve, resolveVotes, onVoteResolve, onExtendClose, onExtendResolve }: Props) {
   const meta = CATEGORIES[incident.category];
   const Icon = meta.icon;
   const shown = displayStatus(incident);
@@ -101,10 +101,10 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
                   Active
                 </span>
               )}
-              {isSecurity(incident.category) && shown === "active" && closeMs > 0 && closeMs < 2 * 24 * 60 * 60 * 1000 && (
+              {isSecurity(incident.category) && shown === "active" && incident.closes_at && (
                 <span className="text-[11px] text-amber-300">Closing in {formatRemain(closeMs)}</span>
               )}
-              {isVehicle(incident.category) && shown === "active" && resolveMs > 0 && (
+              {isVehicle(incident.category) && shown === "active" && incident.resolves_at && (
                 <span className="text-[11px] text-sky-300">Resolving in {formatRemain(resolveMs)}</span>
               )}
               {!resolved && (
@@ -184,21 +184,41 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
               Un-Resolve
             </button>
           )}
-          {isSecurity(incident.category) && shown !== "resolved" && (
-            <button
-              onClick={() => onExtendClose(incident.id, incident.closes_at)}
-              className="flex shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300"
+                    {isSecurity(incident.category) && shown !== "resolved" && (
+            <select
+              defaultValue=""
+              onChange={(e) => {
+                const ms = Number(e.target.value);
+                if (ms) onExtendClose(incident.id, incident.closes_at, ms);
+                e.target.value = "";
+              }}
+              className="rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-300"
             >
-              Don’t close
-            </button>
+              <option value="" disabled>Don’t close…</option>
+              <option value={3600000}>1 hour</option>
+              <option value={7200000}>2 hours</option>
+              <option value={86400000}>1 day</option>
+              <option value={259200000}>3 days</option>
+              <option value={604800000}>1 week</option>
+            </select>
           )}
           {isVehicle(incident.category) && shown !== "resolved" && (
-            <button
-              onClick={() => onExtendResolve(incident.id, incident.resolves_at)}
-              className="flex shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300"
+            <select
+              defaultValue=""
+              onChange={(e) => {
+                const ms = Number(e.target.value);
+                if (ms) onExtendResolve(incident.id, incident.resolves_at, ms);
+                e.target.value = "";
+              }}
+              className="rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-300"
             >
-              Don’t resolve
-            </button>
+              <option value="" disabled>Don’t resolve…</option>
+              <option value={3600000}>1 hour</option>
+              <option value={7200000}>2 hours</option>
+              <option value={86400000}>1 day</option>
+              <option value={259200000}>3 days</option>
+              <option value={604800000}>1 week</option>
+            </select>
           )}
         </div>
 
