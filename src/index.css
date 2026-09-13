@@ -118,3 +118,7 @@ body {
 .wt-pulse {
   animation: wt-pulse-ring 2s infinite;
 }
+
+input, textarea, select {
+  font-size: 16px;
+}
