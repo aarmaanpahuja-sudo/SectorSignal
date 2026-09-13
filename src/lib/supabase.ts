@@ -84,7 +84,7 @@ export interface RecyclingRequest {
   created_at: string;
 }
 
-export type IncidentStatus = "active" | "resolved";
+export type IncidentStatus = "active" | "resolved" | "closed";
 
 export interface Incident {
   id: string;
@@ -101,6 +101,10 @@ export interface Incident {
   user_id: string | null;
   author_name: string | null;
   author_email: string | null;
+  closes_at?: string | null;
+  resolves_at?: string | null;
+  area_type?: "pin" | "circle" | null;
+  radius_m?: number | null;
   created_at: string;
   updated_at: string;
 }
