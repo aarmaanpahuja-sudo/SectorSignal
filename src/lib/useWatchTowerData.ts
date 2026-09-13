@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase, type Incident, type Comment, type WatchZone, type Profile } from "./supabase";
+import { isSecurity, isVehicle, SECURITY_CLOSE_MS, vehicleResolveMs, votesNeeded, DONT_CLOSE_EXTEND_MS, DONT_RESOLVE_EXTEND_MS } from "./incidentRules";
 import { getOrCreateClientId } from "./clientId";
 
 export interface DataState {
@@ -17,6 +18,7 @@ export function useWatchTowerData(userId: string | null) {
 
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [resolveVotes, setResolveVotes] = useState<Record<string, number>>({});
   const [zones, setZones] = useState<WatchZone[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,6 +53,13 @@ export function useWatchTowerData(userId: string | null) {
       setZones((zn.data as WatchZone[]) || []);
       setProfile((pf.data as Profile) || null);
       setLoading(false);
+
+      const { data: votes } = await supabase.from("incident_resolves").select("incident_id");
+      if (!cancelled && votes) {
+        const counts: Record<string, number> = {};
+        for (const v of votes) counts[v.incident_id] = (counts[v.incident_id] || 0) + 1;
+        setResolveVotes(counts);
+      }
     })();
     return () => {
       cancelled = true;
@@ -117,11 +126,17 @@ export function useWatchTowerData(userId: string | null) {
   const addIncident = useCallback(
     async (input: Omit<Incident, "id" | "created_at" | "updated_at" | "status" | "verifications" | "reporter_id" | "user_id">) => {
       const { data: authData } = await supabase.auth.getUser();
-      const row: Record<string, unknown> = {
+            const row: Record<string, unknown> = {
         ...input,
         reporter_id: clientId,
         author_name: profile?.display_name || "Neighbor",
         author_email: authData.user?.email ?? null,
+        closes_at: isSecurity(input.category)
+          ? new Date(Date.now() + SECURITY_CLOSE_MS).toISOString()
+          : null,
+        resolves_at: isVehicle(input.category)
+          ? new Date(Date.now() + vehicleResolveMs(input.category)).toISOString()
+          : null,
       };
       if (userId) row.user_id = userId;
 
@@ -355,6 +370,33 @@ export function useWatchTowerData(userId: string | null) {
     [clientId, userId]
   );
 
+    const voteResolve = useCallback(async (id: string, category: string) => {
+    const row: Record<string, unknown> = { incident_id: id };
+    if (userId) row.user_id = userId;
+    else row.client_id = clientId;
+    const { error } = await supabase.from("incident_resolves").insert(row);
+    if (error && !String(error.message).toLowerCase().includes("duplicate")) throw error;
+    const next = (resolveVotes[id] || 0) + (error ? 0 : 1);
+    setResolveVotes((prev) => ({ ...prev, [id]: next }));
+    if (next >= votesNeeded(category)) {
+      await supabase.from("incidents").update({ status: "resolved" }).eq("id", id);
+      setIncidents((prev) => prev.map((i) => (i.id === id ? { ...i, status: "resolved" } : i)));
+    }
+  }, [clientId, userId, resolveVotes]);
+
+  const extendClose = useCallback(async (id: string, current: string | null | undefined) => {
+    const base = current ? new Date(current).getTime() : Date.now();
+    const next = new Date(Math.max(base, Date.now()) + DONT_CLOSE_EXTEND_MS).toISOString();
+    await supabase.from("incidents").update({ closes_at: next, status: "active" }).eq("id", id);
+    setIncidents((prev) => prev.map((i) => (i.id === id ? { ...i, closes_at: next, status: "active" } : i)));
+  }, []);
+
+  const extendResolve = useCallback(async (id: string, current: string | null | undefined) => {
+    const next = new Date(Date.now() + DONT_RESOLVE_EXTEND_MS).toISOString();
+    await supabase.from("incidents").update({ resolves_at: next, status: "active" }).eq("id", id);
+    setIncidents((prev) => prev.map((i) => (i.id === id ? { ...i, resolves_at: next, status: "active" } : i)));
+  }, []);
+  
   return {
     clientId,
     incidents,
@@ -366,6 +408,10 @@ export function useWatchTowerData(userId: string | null) {
     addIncident,
     resolveIncident,
     unresolveIncident,
+    resolveVotes,
+    voteResolve,
+    extendClose,
+    extendResolve,
     verifyIncident,
     addComment,
     addZone,
