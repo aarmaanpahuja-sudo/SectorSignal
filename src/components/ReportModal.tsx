@@ -35,6 +35,8 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
   const [address, setAddress] = useState("");
   const [recycleDone, setRecycleDone] = useState(false);
   const [zipLocked, setZipLocked] = useState(false);
+  const [areaType, setAreaType] = useState<"pin" | "circle">("pin");
+  const [radiusM, setRadiusM] = useState(50);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
