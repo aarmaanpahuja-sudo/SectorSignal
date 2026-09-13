@@ -384,15 +384,16 @@ export function useWatchTowerData(userId: string | null) {
     }
   }, [clientId, userId, resolveVotes]);
 
-  const extendClose = useCallback(async (id: string, current: string | null | undefined) => {
-    const base = current ? new Date(current).getTime() : Date.now();
-    const next = new Date(Math.max(base, Date.now()) + DONT_CLOSE_EXTEND_MS).toISOString();
+    const extendClose = useCallback(async (id: string, current: string | null | undefined, ms: number) => {
+    const base = Math.max(Date.now(), current ? new Date(current).getTime() : Date.now());
+    const next = new Date(base + ms).toISOString();
     await supabase.from("incidents").update({ closes_at: next, status: "active" }).eq("id", id);
     setIncidents((prev) => prev.map((i) => (i.id === id ? { ...i, closes_at: next, status: "active" } : i)));
   }, []);
 
-  const extendResolve = useCallback(async (id: string, current: string | null | undefined) => {
-    const next = new Date(Date.now() + DONT_RESOLVE_EXTEND_MS).toISOString();
+    const extendResolve = useCallback(async (id: string, current: string | null | undefined, ms: number) => {
+    const base = Math.max(Date.now(), current ? new Date(current).getTime() : Date.now());
+    const next = new Date(base + ms).toISOString();
     await supabase.from("incidents").update({ resolves_at: next, status: "active" }).eq("id", id);
     setIncidents((prev) => prev.map((i) => (i.id === id ? { ...i, resolves_at: next, status: "active" } : i)));
   }, []);
