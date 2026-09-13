@@ -687,6 +687,10 @@ function FeedView({
   authorName,
   onOpenMap,
   onMessagePoster,
+  onVoteResolve,
+  onExtendClose,
+  onExtendResolve,
+  resolveVotes,
 }: {
   incidents: ReturnType<typeof useWatchTowerData>["incidents"];
   comments: ReturnType<typeof useWatchTowerData>["comments"];
@@ -697,8 +701,12 @@ function FeedView({
   onVerify: ReturnType<typeof useWatchTowerData>["verifyIncident"];
   onComment: (incidentId: string, body: string, authorName: string) => Promise<unknown>;
   authorName: string;
-    onOpenMap: (incident: ReturnType<typeof useWatchTowerData>["incidents"][number]) => void;
+  onOpenMap: (incident: ReturnType<typeof useWatchTowerData>["incidents"][number]) => void;
   onMessagePoster: (incident: ReturnType<typeof useWatchTowerData>["incidents"][number]) => void;
+  onVoteResolve: ReturnType<typeof useWatchTowerData>["voteResolve"];
+  onExtendClose: ReturnType<typeof useWatchTowerData>["extendClose"];
+  onExtendResolve: ReturnType<typeof useWatchTowerData>["extendResolve"];
+  resolveVotes: Record<string, number>;
 }) {
        const tabs: { id: "active" | "resolved" | "closed" | "all"; label: string }[] = [
     { id: "active", label: "Active" },
@@ -734,7 +742,7 @@ function FeedView({
         </div>
       ) : (
         incidents.map((inc) => (
-          <IncidentCard
+                    <IncidentCard
             key={inc.id}
             incident={inc}
             comments={comments}
@@ -745,6 +753,10 @@ function FeedView({
             authorName={authorName}
             onOpenMap={onOpenMap}
             onMessagePoster={onMessagePoster}
+            onVoteResolve={onVoteResolve}
+            onExtendClose={onExtendClose}
+            onExtendResolve={onExtendResolve}
+            resolveVotes={resolveVotes}
           />
         ))
       )}
