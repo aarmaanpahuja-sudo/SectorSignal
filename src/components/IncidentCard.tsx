@@ -28,7 +28,7 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
   const shown = displayStatus(incident);
   const resolved = shown === "resolved";
   const closed = shown === "closed";
-  const votes = resolveVotes[incident.id] || 0;
+  const votes = resolveVotes?.[incident.id] || 0;
   const need = votesNeeded(incident.category);
   const closeMs = incident.closes_at ? new Date(incident.closes_at).getTime() - Date.now() : 0;
   const resolveMs = incident.resolves_at ? new Date(incident.resolves_at).getTime() - Date.now() : 0;
