@@ -200,19 +200,6 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
               Don’t resolve
             </button>
           )}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-emerald-600/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300 transition-all duration-200 hover:bg-emerald-500/20"
-            >
-              <Check size={13} />
-              Resolve
-            </button>
-          ) : (
-            <button
-              onClick={() => onUnresolve(incident.id)}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-amber-600/40 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-300 transition-all duration-200 hover:bg-amber-500/20"
-            >
-              Un-Resolve
-            </button>
-          )}
         </div>
 
         {hasCoords && (
