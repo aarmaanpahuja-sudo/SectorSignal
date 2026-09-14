@@ -392,7 +392,13 @@ if (search.trim()) {
               setStatusFilter={setStatusFilter}
               onResolve={data.resolveIncident}
               onUnresolve={data.unresolveIncident}
-              onVoteResolve={data.voteResolve}
+              onVoteResolve={async (id, cat) => {
+                if (!auth.user) {
+                  setAuthOpen(true);
+                  return;
+                }
+                await data.voteResolve(id, cat);
+              }}
               onExtendClose={data.extendClose}
               onExtendResolve={data.extendResolve}
               resolveVotes={data.resolveVotes}
