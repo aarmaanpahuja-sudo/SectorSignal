@@ -370,19 +370,38 @@ export function useWatchTowerData(userId: string | null) {
     [clientId, userId]
   );
 
-    const voteResolve = useCallback(async (id: string, category: string) => {
-    const row: Record<string, unknown> = { incident_id: id };
-    if (userId) row.user_id = userId;
-    else row.client_id = clientId;
-    const { error } = await supabase.from("incident_resolves").insert(row);
-    if (error && !String(error.message).toLowerCase().includes("duplicate")) throw error;
-    const next = (resolveVotes[id] || 0) + (error ? 0 : 1);
+        const voteResolve = useCallback(async (id: string, category: string) => {
+    if (!userId) {
+      throw new Error("Sign in to resolve");
+    }
+    const { data: existing } = await supabase
+      .from("incident_resolves")
+      .select("id")
+      .eq("incident_id", id)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (existing) return;
+
+    const { error } = await supabase.from("incident_resolves").insert({
+      incident_id: id,
+      user_id: userId,
+    });
+    if (error) {
+      if (String(error.message).toLowerCase().includes("duplicate")) return;
+      throw error;
+    }
+
+    const { count } = await supabase
+      .from("incident_resolves")
+      .select("*", { count: "exact", head: true })
+      .eq("incident_id", id);
+    const next = count || 0;
     setResolveVotes((prev) => ({ ...prev, [id]: next }));
     if (next >= votesNeeded(category)) {
       await supabase.from("incidents").update({ status: "resolved" }).eq("id", id);
       setIncidents((prev) => prev.map((i) => (i.id === id ? { ...i, status: "resolved" } : i)));
     }
-  }, [clientId, userId, resolveVotes]);
+  }, [userId]);
 
     const extendClose = useCallback(async (id: string, current: string | null | undefined, ms: number) => {
     const base = Math.max(Date.now(), current ? new Date(current).getTime() : Date.now());
