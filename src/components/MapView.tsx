@@ -163,18 +163,7 @@ export default function MapView({ incidents, activeZip, onResolve, selectedIncid
           await onResolve(inc.id);
         });
       });
-      markersRef.current[inc.id] = layer as L.Marker;
-    });
-
-        marker.on("popupopen", (e) => {
-          const root = (e.popup.getElement() as HTMLElement)?.querySelector("[data-resolve]");
-          root?.addEventListener("click", async () => {
-            await onResolve(inc.id);
-          });
-        });
-
-        markersRef.current[inc.id] = marker;
-      }
+            markersRef.current[inc.id] = layer as L.Marker;
     });
   }, [filtered, onResolve]);
 
