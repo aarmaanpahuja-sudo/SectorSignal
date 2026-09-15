@@ -1,7 +1,7 @@
 {
   "name": "safeloudoun",
   "private": true,
-  "version": "1.6.12",
+  "version": "1.7.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
