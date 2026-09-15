@@ -402,7 +402,13 @@ if (search.trim()) {
               onExtendClose={data.extendClose}
               onExtendResolve={data.extendResolve}
               resolveVotes={data.resolveVotes}
-              onVerify={data.verifyIncident}
+              onVerify={async (id) => {
+                if (!auth.user) {
+                  setAuthOpen(true);
+                  return;
+                }
+                await data.verifyIncident(id);
+              }}
               onComment={data.addComment}
               authorName={data.profile?.display_name || "Neighbor"}
               onOpenMap={openIncidentMap}
