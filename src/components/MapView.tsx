@@ -134,39 +134,37 @@ export default function MapView({ incidents, activeZip, onResolve, selectedIncid
     });
 
     // Add or update markers
-    filtered.forEach((inc) => {
+        filtered.forEach((inc) => {
       if (inc.latitude == null || inc.longitude == null) return;
 
-            const meta = CATEGORIES[inc.category] || {
-        pinColor: "#94a3b8",
-        label: inc.category,
-      };
+      const meta = CATEGORIES[inc.category] || { pinColor: "#94a3b8", label: inc.category };
       const icon = buildPinIcon(meta.pinColor);
       const existing = markersRef.current[inc.id];
 
       if (existing) {
-        existing.setIcon(icon);
         existing.setLatLng([inc.latitude, inc.longitude]);
         existing.setPopupContent(popupHtml(inc));
-      } else {
-                if (inc.area_type === "circle" && inc.radius_m) {
-          const circle = L.circle([inc.latitude, inc.longitude], {
-            radius: inc.radius_m,
-            color: meta.pinColor,
-            fillOpacity: 0.12,
-          }).addTo(map);
-          circle.bindPopup(popupHtml(inc));
-        } else {
-          const marker = L.marker([inc.latitude, inc.longitude], { icon }).addTo(map);
-          marker.bindPopup(popupHtml(inc));
-          marker.on("popupopen", (e) => {
-            const root = (e.popup.getElement() as HTMLElement)?.querySelector("[data-resolve]");
-            root?.addEventListener("click", async () => {
-              await onResolve(inc.id);
-            });
-          });
-          markersRef.current[inc.id] = marker;
-        }
+        return;
+      }
+
+      const layer: L.Marker | L.Circle =
+        inc.area_type === "circle" && inc.radius_m
+          ? L.circle([inc.latitude, inc.longitude], {
+              radius: inc.radius_m,
+              color: meta.pinColor,
+              fillOpacity: 0.12,
+            }).addTo(map)
+          : L.marker([inc.latitude, inc.longitude], { icon }).addTo(map);
+
+      layer.bindPopup(popupHtml(inc));
+      layer.on("popupopen", (e: L.PopupEvent) => {
+        const root = (e.popup.getElement() as HTMLElement)?.querySelector("[data-resolve]");
+        root?.addEventListener("click", async () => {
+          await onResolve(inc.id);
+        });
+      });
+      markersRef.current[inc.id] = layer as L.Marker;
+    });
 
         marker.on("popupopen", (e) => {
           const root = (e.popup.getElement() as HTMLElement)?.querySelector("[data-resolve]");
