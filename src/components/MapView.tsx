@@ -53,7 +53,9 @@ export default function MapView({ incidents, activeZip, onResolve, selectedIncid
   }
 ).addTo(map);
 
-    mapRef.current = map;
+        mapRef.current = map;
+    setTimeout(() => map.invalidateSize(), 50);
+    setTimeout(() => map.invalidateSize(), 300);
 
     return () => {
       map.remove();
@@ -135,7 +137,10 @@ export default function MapView({ incidents, activeZip, onResolve, selectedIncid
     filtered.forEach((inc) => {
       if (inc.latitude == null || inc.longitude == null) return;
 
-      const meta = CATEGORIES[inc.category];
+            const meta = CATEGORIES[inc.category] || {
+        pinColor: "#94a3b8",
+        label: inc.category,
+      };
       const icon = buildPinIcon(meta.pinColor);
       const existing = markersRef.current[inc.id];
 
@@ -176,7 +181,7 @@ export default function MapView({ incidents, activeZip, onResolve, selectedIncid
   }, [filtered, onResolve]);
 
   function popupHtml(inc: Incident): string {
-    const meta = CATEGORIES[inc.category];
+        const meta = CATEGORIES[inc.category] || { pinColor: "#94a3b8", label: inc.category };
     const latStr = inc.latitude != null ? inc.latitude.toFixed(5) : "—";
     const lngStr = inc.longitude != null ? inc.longitude.toFixed(5) : "—";
 
